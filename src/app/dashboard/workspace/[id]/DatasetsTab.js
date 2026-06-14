@@ -23,8 +23,17 @@ export default function DatasetsTab({ workspaceId }) {
     const { data: { user } } = await supabase.auth.getUser();
     const path = `${user.id}/${workspaceId}/${Date.now()}_${file.name}`;
     const { error: uploadErr } = await supabase.storage.from('datasets').upload(path, file);
-    if (uploadErr) { console.error(uploadErr); return; }
-    const { data } = await supabase.from('datasets').insert({ workspace_id: workspaceId, user_id: user.id, name: file.name, storage_path: path, format: file.name.split('.').pop(), size_bytes: file.size }).select().single();
+    if (uploadErr) { 
+      alert(`Storage Error: ${uploadErr.message}. Please run setup_rls.sql script.`); 
+      console.error(uploadErr); 
+      return; 
+    }
+    const { data, error } = await supabase.from('datasets').insert({ workspace_id: workspaceId, user_id: user.id, name: file.name, storage_path: path, format: file.name.split('.').pop(), size_bytes: file.size }).select().single();
+    if (error) {
+      alert(`Database Error: ${error.message}. Please run setup_rls.sql script.`);
+      console.error(error);
+      return;
+    }
     if (data) setDatasets(prev => [data, ...prev]);
   }
 

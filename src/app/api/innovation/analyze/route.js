@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { createClient } from '@/lib/supabase/server';
 import { generateText, safeParseJSON } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
@@ -52,3 +54,4 @@ Return pure JSON only.`;
     return NextResponse.json({ error: error.message || 'Innovation analysis failed' }, { status: 500 });
   }
 }
+

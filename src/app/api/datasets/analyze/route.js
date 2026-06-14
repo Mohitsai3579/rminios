@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { createClient } from '@/lib/supabase/server';
 import { generateText } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
@@ -49,3 +51,4 @@ Return ONLY valid JSON.`;
     return new Response(error.message, { status: 500 });
   }
 }
+

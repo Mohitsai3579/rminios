@@ -7,16 +7,16 @@ import path from 'path';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export const geminiModel = genAI.getGenerativeModel({
-  model: 'gemini-2.5-flash',
+  model: 'gemini-1.5-flash',
 });
 
 export const embeddingModel = genAI.getGenerativeModel({
-  model: 'gemini-embedding-2',
+  model: 'text-embedding-004',
 });
 
 export async function generateText(prompt, systemInstruction = '') {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-1.5-flash',
     systemInstruction: systemInstruction || undefined,
   });
 
@@ -26,7 +26,7 @@ export async function generateText(prompt, systemInstruction = '') {
 
 export async function generateTextStream(prompt, systemInstruction = '') {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-1.5-flash',
     systemInstruction: systemInstruction || undefined,
   });
 

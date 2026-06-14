@@ -32,7 +32,12 @@ export default function ProjectsTab({ workspaceId }) {
   async function createProject() {
     if (!newTitle.trim()) return;
     const { data: { user } } = await supabase.auth.getUser();
-    const { data } = await supabase.from('projects').insert({ workspace_id: workspaceId, user_id: user.id, title: newTitle, project_type: newType, description: newDesc }).select().single();
+    const { data, error } = await supabase.from('projects').insert({ workspace_id: workspaceId, user_id: user.id, title: newTitle, project_type: newType, description: newDesc }).select().single();
+    if (error) {
+      alert(`Failed to create project: ${error.message}. Please run the setup_rls.sql script.`);
+      console.error(error);
+      return;
+    }
     if (data) { setProjects(prev => [data, ...prev]); setActiveProject(data); setShowCreate(false); setNewTitle(''); setNewDesc(''); }
   }
 

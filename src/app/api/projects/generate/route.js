@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { createClient } from '@/lib/supabase/server';
 import { generateText, safeParseJSON } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
@@ -58,3 +60,4 @@ Format the response as pure JSON.`;
     return NextResponse.json({ error: error.message || 'Project generation failed' }, { status: 500 });
   }
 }
+

@@ -23,7 +23,12 @@ export default function ExperimentsTab({ workspaceId }) {
   async function create() {
     if (!title.trim()) return;
     const { data: { user } } = await supabase.auth.getUser();
-    const { data } = await supabase.from('experiments').insert({ workspace_id: workspaceId, user_id: user.id, title, hypothesis }).select().single();
+    const { data, error } = await supabase.from('experiments').insert({ workspace_id: workspaceId, user_id: user.id, title, hypothesis }).select().single();
+    if (error) {
+      alert(`Failed to create experiment: ${error.message}. Please run the setup_rls.sql script.`);
+      console.error(error);
+      return;
+    }
     if (data) { setExperiments(prev => [data, ...prev]); setShowCreate(false); setTitle(''); setHypothesis(''); }
   }
 

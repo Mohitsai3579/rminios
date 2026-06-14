@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { createClient } from '@/lib/supabase/server';
 import { generateText, safeParseJSON } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
@@ -51,3 +53,4 @@ Format the response as pure JSON without markdown block wrappers.`;
     return NextResponse.json({ error: error.message || 'Integrity analysis failed' }, { status: 500 });
   }
 }
+

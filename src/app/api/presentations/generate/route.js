@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { createClient } from '@/lib/supabase/server';
 import { generateText, safeParseJSON } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
@@ -79,3 +81,4 @@ Return a JSON object with:
     return NextResponse.json({ error: error.message || 'Presentation generation failed' }, { status: 500 });
   }
 }
+

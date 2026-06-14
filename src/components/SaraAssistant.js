@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, X, Minimize2, Maximize2, Sparkles, Server, BarChart, FileText } from 'lucide-react';
+import { Send, X, Minimize2, Maximize2, Sparkles, Server, BarChart, FileText, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { createClient } from '@/lib/supabase/client';
 
@@ -76,6 +76,12 @@ export default function SaraAssistant() {
     setLoading(false);
   };
 
+  const clearHistory = (e) => {
+    e.stopPropagation();
+    setMessages([]);
+    localStorage.removeItem(storageKey);
+  };
+
   if (!isOpen) {
     return (
       <button 
@@ -108,10 +114,13 @@ export default function SaraAssistant() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="sara-btn-icon" onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}>
+          <button className="sara-btn-icon" title="Clear Chat History" onClick={clearHistory}>
+            <RefreshCw size={14} />
+          </button>
+          <button className="sara-btn-icon" title="Minimize" onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}>
             {isMinimized ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
           </button>
-          <button className="sara-btn-icon" onClick={(e) => { e.stopPropagation(); setIsOpen(false); setIsMinimized(false); }}>
+          <button className="sara-btn-icon" title="Close" onClick={(e) => { e.stopPropagation(); setIsOpen(false); setIsMinimized(false); }}>
             <X size={14} />
           </button>
         </div>

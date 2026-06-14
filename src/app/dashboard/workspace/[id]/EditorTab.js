@@ -253,18 +253,33 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
     if (!activePaper) return;
     
     const isIEEE = exportFormat === 'ieee';
-    const children = [];
+    
+    const titleSectionChildren = [];
+    const bodySectionChildren = [];
     
     sections.forEach(s => {
       if (s.type === 'title') {
-        children.push(new Paragraph({
+        titleSectionChildren.push(new Paragraph({
           text: s.content || 'Untitled Paper',
           heading: HeadingLevel.TITLE,
           alignment: 'center',
           spacing: { after: 400 }
         }));
+        if (isIEEE) {
+          titleSectionChildren.push(new Paragraph({
+            children: [new TextRun({ text: "First Author, Second Author", font: 'Times New Roman', size: 24, bold: true })],
+            alignment: 'center',
+            spacing: { after: 100 }
+          }));
+          titleSectionChildren.push(new Paragraph({
+            children: [new TextRun({ text: "Department, Institution, City, Country", font: 'Times New Roman', size: 20, italics: true })],
+            alignment: 'center',
+            spacing: { after: 400 }
+          }));
+        }
       } else {
-        children.push(new Paragraph({
+        const targetChildren = isIEEE ? bodySectionChildren : titleSectionChildren;
+        targetChildren.push(new Paragraph({
           text: s.title,
           heading: HeadingLevel.HEADING_2,
           spacing: { before: 400, after: 200 }
@@ -274,7 +289,7 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
         const paragraphs = textContent.split('\n\n').filter(Boolean);
         
         paragraphs.forEach(pText => {
-          children.push(new Paragraph({
+          targetChildren.push(new Paragraph({
             children: [new TextRun({ text: pText.replace(/\n/g, ' '), font: isIEEE ? 'Times New Roman' : undefined, size: isIEEE ? 20 : undefined })],
             spacing: { after: 200 },
             alignment: isIEEE ? 'both' : 'left'
@@ -283,13 +298,33 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
       }
     });
 
+    const docSections = [];
+    
+    if (isIEEE) {
+      docSections.push({
+        properties: {},
+        children: titleSectionChildren
+      });
+      docSections.push({
+        properties: {
+          page: {
+            columns: {
+              space: 708,
+              count: 2
+            }
+          }
+        },
+        children: bodySectionChildren
+      });
+    } else {
+      docSections.push({
+        properties: {},
+        children: titleSectionChildren
+      });
+    }
+
     const doc = new Document({
-      sections: [{
-        properties: isIEEE ? {
-          column: { space: 708, count: 2 }, // 708 twips = 0.5 inch spacing
-        } : {},
-        children: children
-      }]
+      sections: docSections
     });
 
     try {

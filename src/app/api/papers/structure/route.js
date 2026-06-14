@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { generateText } from '@/lib/gemini';
 import { SYSTEM_PROMPTS } from '@/lib/prompts';
 import { NextResponse } from 'next/server';

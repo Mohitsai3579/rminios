@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { createClient } from '@/lib/supabase/server';
 import { generateText } from '@/lib/gemini';
 import { SYSTEM_PROMPTS, SECTION_TEMPLATES } from '@/lib/prompts';

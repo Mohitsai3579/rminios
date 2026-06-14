@@ -88,6 +88,9 @@ export default function DashboardPage() {
       setShowCreate(false);
       setNewName('');
       setNewDesc('');
+    } else if (error) {
+      alert(`Failed to create workspace: ${error.message}`);
+      console.error(error);
     }
     setCreating(false);
   }

@@ -40,6 +40,7 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
   const [autoGenerating, setAutoGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [citationStyle, setCitationStyle] = useState('apa');
+  const [exportFormat, setExportFormat] = useState('ieee');
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -118,6 +119,14 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
       const updatedSections = [...initialSections];
       
       for (const section of initialSections) {
+        // Skip AI generation for title, set it directly from pendingIdea
+        if (section.type === 'title') {
+          const idx = updatedSections.findIndex(s => s.id === section.id);
+          if (idx > -1) updatedSections[idx].content = pendingIdea?.title || 'Generated Paper';
+          setSections([...updatedSections]);
+          continue;
+        }
+
         setGeneratingSection(section.id);
         try {
           const res = await fetch('/api/papers/generate', {
@@ -243,13 +252,15 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
   async function exportPaper() {
     if (!activePaper) return;
     
+    const isIEEE = exportFormat === 'ieee';
     const children = [];
     
     sections.forEach(s => {
       if (s.type === 'title') {
         children.push(new Paragraph({
           text: s.content || 'Untitled Paper',
-          heading: HeadingLevel.HEADING_1,
+          heading: HeadingLevel.TITLE,
+          alignment: 'center',
           spacing: { after: 400 }
         }));
       } else {
@@ -264,8 +275,9 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
         
         paragraphs.forEach(pText => {
           children.push(new Paragraph({
-            children: [new TextRun({ text: pText.replace(/\n/g, ' ') })],
-            spacing: { after: 200 }
+            children: [new TextRun({ text: pText.replace(/\n/g, ' '), font: isIEEE ? 'Times New Roman' : undefined, size: isIEEE ? 20 : undefined })],
+            spacing: { after: 200 },
+            alignment: isIEEE ? 'both' : 'left'
           }));
         });
       }
@@ -273,7 +285,9 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
 
     const doc = new Document({
       sections: [{
-        properties: {},
+        properties: isIEEE ? {
+          column: { space: 708, count: 2 }, // 708 twips = 0.5 inch spacing
+        } : {},
         children: children
       }]
     });
@@ -360,6 +374,10 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{wordCount} words</span>
             <select className="input" value={citationStyle} onChange={e => setCitationStyle(e.target.value)} style={{ padding: '4px 8px', fontSize: '0.8rem', width: 'auto' }}>
               {CITATION_STYLES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+            <select className="input" value={exportFormat} onChange={e => setExportFormat(e.target.value)} style={{ padding: '4px 8px', fontSize: '0.8rem', width: 'auto' }}>
+              <option value="standard">Standard Docx</option>
+              <option value="ieee">IEEE 2-Column Format</option>
             </select>
             <button className="btn btn-sm btn-secondary" onClick={exportPaper}><Download size={14} /> Export</button>
             <button className="btn btn-sm btn-secondary" onClick={() => setShowWebSearch(true)}><Globe size={14} style={{ color: 'var(--blue)' }} /> Web Search</button>

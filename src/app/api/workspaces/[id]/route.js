@@ -11,14 +11,14 @@ export async function DELETE(request, { params }) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     // Ensure the workspace belongs to the user
-    const { data: workspace } = await supabase.from('workspaces').select('owner_id').eq('id', id).single();
+    const { data: workspace } = await supabase.from('workspaces').select('user_id').eq('id', id).single();
     if (!workspace) return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
     
     // Check if user is owner or admin
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     const isAdmin = profile && (profile.role === 'admin' || profile.role === 'superadmin');
     
-    if (workspace.owner_id !== user.id && !isAdmin) {
+    if (workspace.user_id !== user.id && !isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

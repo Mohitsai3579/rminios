@@ -80,7 +80,7 @@ export default function DashboardPage() {
     const { data, error } = await supabase.from('workspaces').insert({
       name: newName,
       description: newDesc,
-      owner_id: user.id
+      user_id: user.id
     }).select().single();
 
     if (!error && data) {

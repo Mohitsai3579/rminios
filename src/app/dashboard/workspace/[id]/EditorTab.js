@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Plus, FileText, Trash2, Sparkles, Loader, Save, BookOpen, ChevronDown, ChevronUp, Download, X, FileUp, Globe, Search } from 'lucide-react';
 import { CITATION_STYLES } from '@/lib/citations';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import { saveAs } from 'file-saver';
 
 const SECTIONS = [
   { type: 'title', label: 'Title' },
@@ -72,22 +74,41 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
   const startAutoGeneration = async () => {
     setAutoGenerating(true);
     const { data: { user } } = await supabase.auth.getUser();
-    const defaultSections = SECTIONS.map((s, i) => ({ id: `sec-${i}`, type: s.type, title: s.label, content: '', order: i }));
+    
+    let initialSections = SECTIONS.map((s, i) => ({ id: `sec-${i}`, type: s.type, title: s.label, content: '', order: i }));
+    
+    try {
+      const structRes = await fetch('/api/papers/structure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          paperIdea: pendingIdea ? `Title: ${pendingIdea.title}\nDescription: ${pendingIdea.description}` : '', 
+          paperFormat: formatText 
+        })
+      });
+      if (structRes.ok) {
+        const structData = await structRes.json();
+        if (structData.sections && structData.sections.length > 0) {
+          initialSections = structData.sections;
+        }
+      }
+    } catch(e) { console.error('Failed to get structure', e); }
+
     const { data: newPaper } = await supabase.from('papers').insert({
       workspace_id: workspaceId, user_id: user.id, title: pendingIdea?.title || 'Generated Paper',
-      sections: defaultSections, citation_style: 'apa',
+      sections: initialSections, citation_style: 'apa',
     }).select().single();
     
     if (newPaper) {
       setPapers(prev => [newPaper, ...prev]);
-      selectPaper(newPaper);
+      selectPaper({ ...newPaper, sections: initialSections });
       
       const formatInstructions = formatText.trim() ? `\n\nFORMATTING CONSTRAINTS:\n${formatText}` : '';
       const ideaContext = pendingIdea ? `\n\nCORE IDEA TO IMPLEMENT:\nTitle: ${pendingIdea.title}\nDescription: ${pendingIdea.description}` : '';
 
-      const updatedSections = [...defaultSections];
+      const updatedSections = [...initialSections];
       
-      for (const section of defaultSections) {
+      for (const section of initialSections) {
         setGeneratingSection(section.id);
         try {
           const res = await fetch('/api/papers/generate', {
@@ -96,6 +117,7 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
             body: JSON.stringify({ 
               workspaceId, 
               sectionType: section.type, 
+              sectionTitle: section.title,
               paperTitle: pendingIdea?.title || 'Generated Paper', 
               citationStyle: 'apa',
               paperIdea: ideaContext,
@@ -148,7 +170,13 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
       const res = await fetch('/api/papers/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId, sectionType: section.type, paperTitle: sections.find(s => s.type === 'title')?.content || '', citationStyle }),
+        body: JSON.stringify({ 
+          workspaceId, 
+          sectionType: section.type, 
+          sectionTitle: section.title,
+          paperTitle: sections.find(s => s.type === 'title')?.content || '', 
+          citationStyle 
+        }),
       });
       if (res.ok) {
         const { content } = await res.json();
@@ -203,16 +231,50 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
     setSearchLoading(false);
   }
 
-  function exportPaper() {
-    const text = sections.map(s => {
-      if (s.type === 'title') return `# ${s.content}\n`;
-      return `## ${s.title}\n\n${s.content}\n`;
-    }).join('\n');
-    const blob = new Blob([text], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${activePaper?.title || 'paper'}.md`; a.click();
-    URL.revokeObjectURL(url);
+  async function exportPaper() {
+    if (!activePaper) return;
+    
+    const children = [];
+    
+    sections.forEach(s => {
+      if (s.type === 'title') {
+        children.push(new Paragraph({
+          text: s.content || 'Untitled Paper',
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 400 }
+        }));
+      } else {
+        children.push(new Paragraph({
+          text: s.title,
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 400, after: 200 }
+        }));
+        
+        const textContent = s.content || '';
+        const paragraphs = textContent.split('\n\n').filter(Boolean);
+        
+        paragraphs.forEach(pText => {
+          children.push(new Paragraph({
+            children: [new TextRun({ text: pText.replace(/\n/g, ' ') })],
+            spacing: { after: 200 }
+          }));
+        });
+      }
+    });
+
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: children
+      }]
+    });
+
+    try {
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, `${activePaper.title || 'paper'}.docx`);
+    } catch (e) {
+      console.error('Failed to generate docx', e);
+    }
   }
 
   const wordCount = sections.reduce((acc, s) => acc + (s.content?.split(/\s+/).filter(Boolean).length || 0), 0);

@@ -77,6 +77,14 @@ Format your response as structured JSON with scores and detailed comments.`,
 - abstract: brief abstract if available
 
 If a field is not found, set it to null. Be as accurate as possible.`,
+
+  paper_structure: `You are an academic paper architect. Based on the user's paper idea and their uploaded formatting template guidelines, create a structured JSON array of sections for the paper.
+Each section must have:
+- id: a unique string like "sec-1", "sec-2"
+- type: a standardized lowercase key (e.g., "title", "abstract", "methodology", "custom_section_name")
+- title: the EXACT human-readable title required by the template (e.g., "1.0 Background and Objectives")
+
+If the user provides a format template, STRICTLY adhere to the sections it asks for. If no template is provided, use standard academic sections (Title, Abstract, Introduction, Literature Review, Methodology, Results, Conclusion, References). Return ONLY the JSON array.`,
 };
 
 export const SECTION_TEMPLATES = {
@@ -118,4 +126,13 @@ Title: {title}
 Key findings: {context}
 
 Include: summary of findings, implications, limitations, and future research directions. Use 300-600 words.`,
+
+  dynamic_section: `Write the section titled "{sectionTitle}" for:
+Paper Title: {title}
+Context from papers: {context}
+
+CRITICAL FORMATTING INSTRUCTIONS:
+{formatInstructions}
+
+Ensure the content strictly follows the tone, style, and specific requirements for this section as defined in the formatting instructions above. Make it academic and properly cited.`,
 };

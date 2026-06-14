@@ -1,0 +1,62 @@
+=========================================================
+RMinios OS - Comprehensive Project Summary & Development Log
+=========================================================
+
+1. PROJECT OVERVIEW
+-------------------
+RMinios OS is a premium, enterprise-grade AI Research Operating System designed to help academics, students, and professionals orchestrate their research workflows. It integrates document ingestion, vector-based AI retrieval (RAG), live academic search, and 3D visualization into a single Next.js application.
+
+2. TECHNOLOGY STACK
+-------------------
+• Frontend: Next.js (App Router), React, Tailwind CSS, Framer Motion (animations).
+• 3D & Graphics: Three.js, React Three Fiber (@react-three/fiber), React Three Drei.
+• Backend/API: Next.js Serverless Functions, Node.js.
+• Database & Auth: Supabase (PostgreSQL, Row Level Security, Supabase Auth, Storage).
+• AI/LLM Orchestration: Google Generative AI (Gemini), Vercel AI SDK.
+
+3. CORE ARCHITECTURE & FEATURES DEVELOPED
+-----------------------------------------
+
+A. The "Sara" AI Orchestrator
+   We built a dynamic, Role-Based Access Control (RBAC) AI copilot named Sara.
+   • Unauthenticated Persona: Acts as a marketing agent on the landing page, pitching the product and providing dynamic support contact info.
+   • User Persona: Acts as an Academic Research Assistant, strictly forbidden from revealing system architecture.
+   • Admin Persona: Acts as a Senior Solutions Architect, providing full system transparency and KPIs.
+   • Memory Isolation: Chat history is isolated to the specific user session (using localStorage tied to Supabase user IDs) to prevent memory bleed across accounts.
+
+B. Multi-Tenant Workspace System (User Dashboard)
+   • Workspace Management: Users can create isolated workspaces (e.g., "Masters Thesis"). We recently added the ability for users to delete their own workspaces.
+   • Document Ingestion: Users can upload PDFs to Supabase Storage, which triggers vector embeddings for Semantic Search.
+   • Live Academic Search: Built a custom API (`/api/search/arxiv`) that queries the live Cornell ArXiv XML endpoint to stream real, up-to-date research papers directly into the workspace.
+   • Activity Tracking: The dashboard displays metrics like vector storage used, chat sessions, and recent uploads.
+
+C. Administrative Control Panel
+   • Global Settings: Deployed a SQL-backed `site_settings` table to allow Admins to dynamically change the platform Owner Name, Support Email, and Support Phone number in real-time.
+   • Dynamic Footer & Support: Changes in the admin panel instantly propagate to the public landing page footer, the `/support` page, and Sara's memory.
+   • Global Activity Radar: A live feed tracking every major action taken by users across the platform (e.g., "uploaded a document", "created a new workspace", "started a chat"). The API directly queries the `workspaces`, `files`, and `conversations` SQL tables.
+
+D. Landing Page & Aesthetics
+   • Implemented a dark-theme, cinematic 3D Hero section using React Three Fiber.
+   • Added "Bento Grid" feature cards with 3D perspective hover effects (Framer Motion).
+   • Ensured a "world-class SaaS" aesthetic matching Apple, Stripe, and Vercel.
+
+4. DATABASE SCHEMA (Supabase Postgres)
+--------------------------------------
+• profiles: Tracks user roles ('user', 'admin').
+• workspaces: Tracks isolated project environments (`owner_id`, `name`).
+• files / chunks: Stores references to PDFs and their vector embeddings for RAG.
+• site_settings: Stores global platform configuration accessible via RLS policies.
+• conversations / brainstorms: Tracks user interactions for the activity radar.
+
+5. DEVELOPMENT TIMELINE / LOG
+-----------------------------
+• Phase 1: Scaffolded the Next.js app, installed dependencies, and built the static Landing Page.
+• Phase 2: Upgraded the Landing Page to 3D WebGL, integrated Supabase Auth, and built the basic Dashboard skeleton.
+• Phase 3: Developed the Sara AI orchestrator API and the floating Chat UI. Implemented RBAC prompting.
+• Phase 4: Engineered the dynamic Support Configuration system (SQL migration + Admin UI + Public pages).
+• Phase 5: Polished the application by fixing UI bugs, isolating Sara's memory per user, adding Workspace deletion, and hooking the Activity Radar up to live DB events.
+• Phase 6: Removed hardcoded academic search results and wired the UI to a live ArXiv XML streaming API.
+
+=========================================================
+STATUS: STABLE / PRODUCTION-READY
+=========================================================

@@ -63,11 +63,20 @@ export default function EditorTab({ workspaceId, pendingIdea, clearPendingIdea }
     const file = e.target.files?.[0];
     if (!file) return;
     setFormatFile(file);
-    if (file.type === 'text/plain' || file.name.endsWith('.md')) {
-      const text = await file.text();
-      setFormatText(text);
-    } else {
-      setFormatText(`Format provided via uploaded template: ${file.name}`);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/papers/parse-template', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        setFormatText(data.text || `Format provided via template: ${file.name}`);
+      } else {
+        alert('Failed to extract text from template file. Please try a simpler PDF or text file.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while parsing template file.');
     }
   };
 

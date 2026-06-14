@@ -75,6 +75,7 @@ export default function RootLayout({ children }) {
         {children}
         <SaraAssistant />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

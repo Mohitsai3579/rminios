@@ -31,7 +31,22 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
     }
 
-    return NextResponse.json(stats);
+    // Safely try to fetch API usage (table might not exist yet)
+    let api_usage_today = 0;
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const { count } = await supabaseAdmin
+        .from('api_usage')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', today.toISOString());
+      
+      api_usage_today = count || 0;
+    } catch (e) {
+      console.log('api_usage table not ready');
+    }
+
+    return NextResponse.json({ ...stats, api_usage_today });
   } catch (error) {
     console.error('Admin stats error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

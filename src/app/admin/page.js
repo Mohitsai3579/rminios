@@ -117,6 +117,17 @@ export default function AdminOverview() {
               </div>
               
               <div style={{ marginTop: 12 }}>
+                <h5 style={{ marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Gemini API Usage (Today)</h5>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', borderLeft: '3px solid var(--blue)', background: 'var(--bg-secondary)', borderRadius: '0 var(--radius-sm) var(--radius-sm) 0' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Total AI Requests</span>
+                  <span style={{ fontWeight: 600 }}>{stats?.api_usage_today || 0}</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                  Warning: 1.5-Flash limit is 1,500/day. 2.5-Flash limit is 20/day.
+                </div>
+              </div>
+              
+              <div style={{ marginTop: 12 }}>
                 <h5 style={{ marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)' }}>File Processing Status</h5>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <div style={{ flex: 1, padding: '10px', background: 'rgba(34,197,94,0.1)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>

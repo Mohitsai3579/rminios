@@ -4,19 +4,41 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+import { createClient } from '@supabase/supabase-js';
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export const geminiModel = genAI.getGenerativeModel({
-  model: 'gemini-1.5-flash',
-});
+// Helper to interact with Supabase outside of Request context
+const getAdminSupabase = () => createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export const embeddingModel = genAI.getGenerativeModel({
   model: 'text-embedding-004',
 });
 
+// Helper to fetch active model and log usage
+async function getActiveModelAndLogUsage() {
+  const supabase = getAdminSupabase();
+  let activeModel = 'gemini-1.5-flash';
+  try {
+    const { data } = await supabase.from('site_settings').select('gemini_model').eq('id', 'global').single();
+    if (data?.gemini_model) activeModel = data.gemini_model;
+    
+    // Log the usage
+    await supabase.from('api_usage').insert({ model: activeModel, tokens: 0 });
+  } catch (err) {
+    console.error('Gemini Admin Error:', err);
+  }
+  return activeModel;
+}
+
 export async function generateText(prompt, systemInstruction = '') {
+  const activeModel = await getActiveModelAndLogUsage();
+  
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: activeModel,
     systemInstruction: systemInstruction || undefined,
   });
 
@@ -25,8 +47,10 @@ export async function generateText(prompt, systemInstruction = '') {
 }
 
 export async function generateTextStream(prompt, systemInstruction = '') {
+  const activeModel = await getActiveModelAndLogUsage();
+  
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: activeModel,
     systemInstruction: systemInstruction || undefined,
   });
 

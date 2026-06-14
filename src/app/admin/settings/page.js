@@ -26,6 +26,8 @@ export default function AdminSettingsPage() {
   
   const [saving, setSaving] = useState(false);
 
+  const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
+
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
@@ -34,6 +36,7 @@ export default function AdminSettingsPage() {
           setOwnerName(data.owner_name || '');
           setSupportEmail(data.support_email || '');
           setSupportPhone(data.support_phone || '');
+          setGeminiModel(data.gemini_model || 'gemini-1.5-flash');
         }
       });
   }, []);
@@ -46,7 +49,8 @@ export default function AdminSettingsPage() {
         body: JSON.stringify({
           owner_name: ownerName,
           support_email: supportEmail,
-          support_phone: supportPhone
+          support_phone: supportPhone,
+          gemini_model: geminiModel
         })
       });
     } catch(err) {
@@ -58,6 +62,7 @@ export default function AdminSettingsPage() {
   const toggleFleet = (id) => {
     setFleet(prev => ({ ...prev, [id]: { ...prev[id], enabled: !prev[id].enabled } }));
   };
+
   const setFleetKey = (id, key) => {
     setFleet(prev => ({ ...prev, [id]: { ...prev[id], key } }));
   };
@@ -85,7 +90,7 @@ export default function AdminSettingsPage() {
           {/* Provider List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
             {[
-              { id: 'google', name: 'Google (Gemini 2.5)', color: 'var(--blue)' },
+              { id: 'google', name: 'Google (Gemini)', color: 'var(--blue)' },
               { id: 'anthropic', name: 'Anthropic (Claude 3.5)', color: 'var(--amber)' },
               { id: 'openai', name: 'OpenAI (GPT-4o)', color: 'var(--emerald)' },
               { id: 'grok', name: 'xAI (Grok)', color: 'var(--purple)' }
@@ -113,15 +118,26 @@ export default function AdminSettingsPage() {
             ))}
           </div>
           
-          <div className="input-group" style={{ marginBottom: 16 }}>
-            <label>Master Default Routing</label>
-            <select className="input" value={provider} onChange={e => setProvider(e.target.value)}>
-              <option value="google">Google (Gemini 2.5 Flash)</option>
-              <option value="anthropic" disabled={!fleet.anthropic.enabled}>Anthropic (Claude 3.5 Sonnet)</option>
-              <option value="openai" disabled={!fleet.openai.enabled}>OpenAI (GPT-4o)</option>
-              <option value="grok" disabled={!fleet.grok.enabled}>xAI (Grok)</option>
-            </select>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Fallback provider if users don't specify one.</p>
+          <div style={{ display: 'flex', gap: 24, marginBottom: 16 }}>
+            <div className="input-group" style={{ flex: 1 }}>
+              <label>Master Default Routing</label>
+              <select className="input" value={provider} onChange={e => setProvider(e.target.value)}>
+                <option value="google">Google</option>
+                <option value="anthropic" disabled={!fleet.anthropic.enabled}>Anthropic</option>
+                <option value="openai" disabled={!fleet.openai.enabled}>OpenAI</option>
+                <option value="grok" disabled={!fleet.grok.enabled}>xAI</option>
+              </select>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Fallback provider.</p>
+            </div>
+            
+            <div className="input-group" style={{ flex: 1 }}>
+              <label>Google Gemini Model</label>
+              <select className="input" value={geminiModel} onChange={e => setGeminiModel(e.target.value)}>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (1500 req/day)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (20 req/day)</option>
+              </select>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Select active Gemini tier.</p>
+            </div>
           </div>
 
           <div className="input-group" style={{ marginBottom: 16 }}>

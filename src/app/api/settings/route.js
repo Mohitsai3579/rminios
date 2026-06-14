@@ -16,7 +16,8 @@ export async function GET(request) {
       return NextResponse.json({
         owner_name: 'Mohit Jonnadula',
         support_email: 'mohitjonnadula16@gmail.com',
-        support_phone: '9494366318'
+        support_phone: '9494366318',
+        gemini_model: 'gemini-1.5-flash'
       });
     }
 
@@ -46,6 +47,7 @@ export async function POST(request) {
       owner_name: updates.owner_name,
       support_email: updates.support_email,
       support_phone: updates.support_phone,
+      gemini_model: updates.gemini_model,
       updated_at: new Date().toISOString()
     });
 

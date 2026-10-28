@@ -42,7 +42,7 @@ export default function SettingsPage() {
   const [customAccent, setCustomAccent] = useState('#6366f1');
 
   // AI Config
-  const [aiModel, setAiModel] = useState('gemini-2.5-flash');
+  const [aiModel, setAiModel] = useState('gemini-3.5-flash');
   const [creativity, setCreativity] = useState(0.7);
 
   // Notifications
@@ -73,8 +73,9 @@ export default function SettingsPage() {
       if (savedAccent) setCustomAccent(savedAccent);
     }
     
-    const savedModel = localStorage.getItem('rminios-model') || 'gemini-2.5-flash';
-    setAiModel(savedModel);
+    const savedModel = localStorage.getItem('rminios-model');
+    const isObsolete = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'].includes(savedModel);
+    setAiModel(!savedModel || isObsolete ? 'gemini-3.5-flash' : savedModel);
   }, []);
 
   const handleSaveProfile = async () => {
@@ -299,8 +300,9 @@ export default function SettingsPage() {
                   value={aiModel} 
                   onChange={e => { setAiModel(e.target.value); localStorage.setItem('rminios-model', e.target.value); }}
                 >
-                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast & Efficient)</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Reasoning)</option>
+                  <option value="gemini-3.5-flash">Gemini 3.5 Flash (Fast & Stable - Recommended)</option>
+                  <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Low Latency)</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                 </select>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Used globally across Chat, Brainstorm, and Editor components.</p>
               </div>

@@ -17,7 +17,7 @@ export async function GET(request) {
         owner_name: 'Mohit Jonnadula',
         support_email: 'mohitjonnadula16@gmail.com',
         support_phone: '9494366318',
-        gemini_model: 'gemini-1.5-flash'
+        gemini_model: 'gemini-3.5-flash'
       });
     }
 

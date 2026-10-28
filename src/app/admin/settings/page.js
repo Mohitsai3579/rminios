@@ -26,7 +26,7 @@ export default function AdminSettingsPage() {
   
   const [saving, setSaving] = useState(false);
 
-  const [geminiModel, setGeminiModel] = useState('gemini-1.5-flash');
+  const [geminiModel, setGeminiModel] = useState('gemini-3.5-flash');
 
   useEffect(() => {
     fetch('/api/settings')
@@ -36,7 +36,9 @@ export default function AdminSettingsPage() {
           setOwnerName(data.owner_name || '');
           setSupportEmail(data.support_email || '');
           setSupportPhone(data.support_phone || '');
-          setGeminiModel(data.gemini_model || 'gemini-1.5-flash');
+          const current = data.gemini_model;
+          const isObsolete = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash'].includes(current);
+          setGeminiModel(isObsolete || !current ? 'gemini-3.5-flash' : current);
         }
       });
   }, []);
@@ -133,10 +135,12 @@ export default function AdminSettingsPage() {
             <div className="input-group" style={{ flex: 1 }}>
               <label>Google Gemini Model</label>
               <select className="input" value={geminiModel} onChange={e => setGeminiModel(e.target.value)}>
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash (1500 req/day)</option>
-                <option value="gemini-2.5-flash">Gemini 2.5 Flash (20 req/day)</option>
+                <option value="gemini-3.5-flash">Gemini 3.5 Flash (Recommended - Fast & Stable)</option>
+                <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (High Speed)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-3.8-flash">Gemini 3.8 Flash (Latest Preview)</option>
               </select>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Select active Gemini tier.</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Primary model (automatic multi-tier fallback active).</p>
             </div>
           </div>
 

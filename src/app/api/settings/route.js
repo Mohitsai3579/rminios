@@ -11,17 +11,21 @@ export async function GET(request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Also load fleet_config from system_settings
+    const { data: fleetData } = await supabase.from('system_settings').select('value').eq('key', 'fleet_config').single();
+
     if (!data) {
       // Fallback defaults if table is empty or missing
       return NextResponse.json({
         owner_name: 'Mohit Jonnadula',
         support_email: 'mohitjonnadula16@gmail.com',
         support_phone: '9494366318',
-        gemini_model: 'gemini-3.5-flash'
+        gemini_model: 'gemini-3.5-flash',
+        fleet: fleetData?.value || null
       });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ ...data, fleet: fleetData?.value || null });
   } catch (err) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
@@ -52,6 +56,14 @@ export async function POST(request) {
     });
 
     if (error) throw error;
+
+    if (updates.fleet) {
+      await supabase.from('system_settings').upsert({
+        key: 'fleet_config',
+        value: updates.fleet,
+        updated_at: new Date().toISOString()
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

@@ -44,6 +44,10 @@ export default function SettingsPage() {
   // AI Config
   const [aiModel, setAiModel] = useState('gemini-3.5-flash');
   const [creativity, setCreativity] = useState(0.7);
+  const [keyOpenAI, setKeyOpenAI] = useState('');
+  const [keyAnthropic, setKeyAnthropic] = useState('');
+  const [keyGrok, setKeyGrok] = useState('');
+  const [keysSaved, setKeysSaved] = useState(false);
 
   // Notifications
   const [notifEmail, setNotifEmail] = useState(true);
@@ -76,7 +80,19 @@ export default function SettingsPage() {
     const savedModel = localStorage.getItem('rminios-model');
     const isObsolete = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'].includes(savedModel);
     setAiModel(!savedModel || isObsolete ? 'gemini-3.5-flash' : savedModel);
+
+    setKeyOpenAI(localStorage.getItem('rminios-key-openai') || '');
+    setKeyAnthropic(localStorage.getItem('rminios-key-anthropic') || '');
+    setKeyGrok(localStorage.getItem('rminios-key-grok') || '');
   }, []);
+
+  const handleSaveBYOK = () => {
+    localStorage.setItem('rminios-key-openai', keyOpenAI.trim());
+    localStorage.setItem('rminios-key-anthropic', keyAnthropic.trim());
+    localStorage.setItem('rminios-key-grok', keyGrok.trim());
+    setKeysSaved(true);
+    setTimeout(() => setKeysSaved(false), 2000);
+  };
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);
@@ -322,9 +338,67 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div style={{ background: 'var(--bg-primary)', padding: 16, borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'var(--bg-primary)', padding: 16, borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
                 <div className="status-dot status-ready" />
-                <span style={{ fontSize: '0.85rem', color: 'var(--green)' }}>API Connection Stable</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--green)' }}>API Connection Stable (Multi-Model Failover Active)</span>
+              </div>
+
+              {/* Multi-LLM BYOK Fleet Keys */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20 }}>
+                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', marginBottom: 6 }}>
+                  Multi-LLM Fleet Keys (BYOK for Autonomous Swarm)
+                </h5>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 16 }}>
+                  Optionally provide your personal API keys for OpenAI (GPT-4o), Anthropic (Claude 3.5), and xAI (Grok 2). Stored securely in your browser session and used by the Multi-Agent Swarm Arena.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>
+                      OpenAI API Key (Prof. Turing / GPT-4o)
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="sk-proj-..."
+                      className="input"
+                      value={keyOpenAI}
+                      onChange={e => setKeyOpenAI(e.target.value)}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>
+                      Anthropic API Key (Dr. Peer-Reviewer / Claude 3.5 Sonnet)
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="sk-ant-api03-..."
+                      className="input"
+                      value={keyAnthropic}
+                      onChange={e => setKeyAnthropic(e.target.value)}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>
+                      xAI Grok API Key (Dr. Grok / Grok 2)
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="xai-..."
+                      className="input"
+                      value={keyGrok}
+                      onChange={e => setKeyGrok(e.target.value)}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+
+                <button onClick={handleSaveBYOK} className="btn btn-primary btn-sm">
+                  {keysSaved ? 'Saved to Session!' : 'Save Fleet Keys'}
+                </button>
               </div>
             </div>
           )}

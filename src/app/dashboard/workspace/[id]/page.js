@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, FileText, MessageSquare, Brain, PenTool, StickyNote, Database, Rocket, Beaker, MonitorPlay, ShieldCheck, Lightbulb, Menu, X, Palette } from 'lucide-react';
+import { ArrowLeft, FileText, MessageSquare, Brain, PenTool, StickyNote, Database, Rocket, Beaker, MonitorPlay, ShieldCheck, Lightbulb, Menu, X, Palette, Bot } from 'lucide-react';
 import Link from 'next/link';
 import PapersTab from './PapersTab';
 import ChatTab from './ChatTab';
@@ -16,6 +16,8 @@ import PresentationsTab from './PresentationsTab';
 import IntegrityTab from './IntegrityTab';
 import InnovationTab from './InnovationTab';
 import CanvasTab from './CanvasTab';
+import SwarmTab from './SwarmTab';
+import SoundscapePlayer from '@/components/SoundscapePlayer';
 
 export default function WorkspaceDetailPage() {
   const { id } = useParams();
@@ -43,6 +45,7 @@ export default function WorkspaceDetailPage() {
   }, [id]);
 
   const tabs = [
+    { key: 'swarm', label: 'AI Swarm Arena', icon: <Bot size={18} /> },
     { key: 'papers', label: 'Papers', icon: <FileText size={18} /> },
     { key: 'chat', label: 'Chat', icon: <MessageSquare size={18} /> },
     { key: 'notes', label: 'Notes', icon: <StickyNote size={18} /> },
@@ -122,6 +125,7 @@ export default function WorkspaceDetailPage() {
         </div>
         
         <div className="workspace-content-body">
+          {activeTab === 'swarm' && <SwarmTab workspaceId={id} onExportToEditor={(content) => { setPendingIdea(content); setActiveTab('editor'); }} />}
           {activeTab === 'papers' && <PapersTab workspaceId={id} />}
           {activeTab === 'chat' && <ChatTab workspaceId={id} />}
           {activeTab === 'notes' && <NotesTab workspaceId={id} />}
@@ -136,6 +140,9 @@ export default function WorkspaceDetailPage() {
           {activeTab === 'innovation' && <InnovationTab workspaceId={id} />}
         </div>
       </div>
+
+      {/* Floating Deep Work Soundscape & Spotify Focus Player */}
+      <SoundscapePlayer />
     </div>
   );
 }

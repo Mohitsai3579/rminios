@@ -39,6 +39,14 @@ export default function AdminSettingsPage() {
           const current = data.gemini_model;
           const isObsolete = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash'].includes(current);
           setGeminiModel(isObsolete || !current ? 'gemini-3.5-flash' : current);
+          if (data.fleet) {
+            setFleet(prev => ({
+              google: { ...prev.google, ...data.fleet.google },
+              anthropic: { ...prev.anthropic, ...data.fleet.anthropic },
+              openai: { ...prev.openai, ...data.fleet.openai },
+              grok: { ...prev.grok, ...data.fleet.grok }
+            }));
+          }
         }
       });
   }, []);
@@ -48,11 +56,13 @@ export default function AdminSettingsPage() {
     try {
       await fetch('/api/settings', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           owner_name: ownerName,
           support_email: supportEmail,
           support_phone: supportPhone,
-          gemini_model: geminiModel
+          gemini_model: geminiModel,
+          fleet
         })
       });
     } catch(err) {

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { 
   Sparkles, LayoutDashboard, Settings, LogOut, Menu, X, 
   ShieldAlert, Code2, Bot, TrendingUp, Radio, FolderOpen, 
-  Plus, Award, ShieldCheck
+  Plus, Award, ShieldCheck, Globe2, Terminal, Headphones, Scale, Rocket
 } from 'lucide-react';
 import SoundscapePlayer from '@/components/SoundscapePlayer';
 
@@ -83,10 +83,15 @@ export default function DashboardLayout({ children }) {
 
   const navItems = [
     { href: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { href: '/dashboard/galaxy', icon: <Globe2 size={18} />, label: '3D Knowledge Galaxy', badge: '3D WebGL' },
     { href: '/dashboard/codestudio', icon: <Code2 size={18} />, label: 'Antigravity Studio', badge: 'AI Dev' },
     { href: '/dashboard/swarm', icon: <Bot size={18} />, label: 'AI Swarm Arena', badge: '4 Agents' },
+    { href: '/dashboard/podcast', icon: <Headphones size={18} />, label: 'Audio Paper Studio', badge: 'Audio AI' },
+    { href: '/dashboard/sandbox', icon: <Terminal size={18} />, label: 'Python Sandbox', badge: 'Replicate' },
+    { href: '/dashboard/peer-review', icon: <Scale size={18} />, label: 'Peer Review Arena', badge: 'NeurIPS' },
     { href: '/dashboard/grants', icon: <Award size={18} />, label: 'Grants & Funding', badge: 'NSF/NIH' },
     { href: '/dashboard/integrity', icon: <ShieldCheck size={18} />, label: 'Integrity Shield', badge: 'Fact-Check' },
+    { href: '/dashboard/venture', icon: <Rocket size={18} />, label: 'YC Venture Studio', badge: 'Startup' },
     { href: '/dashboard/impact', icon: <TrendingUp size={18} />, label: 'Impact & Patents' },
     { href: '/dashboard/radar', icon: <Radio size={18} />, label: 'Literature Radar' },
     { href: '/dashboard/settings', icon: <Settings size={18} />, label: 'Settings & Fleet' },

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Plus, FolderOpen, FileText, MessageSquare, Brain, ArrowRight, Zap, Cloud, Clock, Trash2, Bot, Code2, Sparkles, TrendingUp, Radio, Award, ShieldCheck } from 'lucide-react';
+import { Plus, FolderOpen, FileText, MessageSquare, Brain, ArrowRight, Zap, Cloud, Clock, Trash2, Bot, Code2, Sparkles, TrendingUp, Radio, Award, ShieldCheck, Globe2, Terminal, Headphones, Scale, Rocket } from 'lucide-react';
 
 export default function DashboardPage() {
   const [workspaces, setWorkspaces] = useState([]);
@@ -303,6 +303,121 @@ export default function DashboardPage() {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--teal)', marginTop: 12, fontWeight: 600 }}>
                 Audit Integrity <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/galaxy" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(99, 102, 241, 0.35)', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(99, 102, 241, 0.25)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Globe2 size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>3D Citation Galaxy</div>
+                  <div style={{ fontSize: '0.72rem', color: '#818cf8' }}>WebGL Gravity Mapping</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Interactive 3D celestial mapping of scientific literature and white-space opportunity detection.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#818cf8', marginTop: 12, fontWeight: 600 }}>
+                Explore Galaxy <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/podcast" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(168, 85, 247, 0.35)', background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(168, 85, 247, 0.25)', color: '#c084fc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Headphones size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Audio Paper Studio</div>
+                  <div style={{ fontSize: '0.72rem', color: '#c084fc' }}>2-Host NotebookLM Audio</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Converts dense 30-page papers into conversational dual-host scientific audio overviews.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#c084fc', marginTop: 12, fontWeight: 600 }}>
+                Listen to Audio <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/sandbox" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(45, 212, 191, 0.35)', background: 'linear-gradient(135deg, rgba(45,212,191,0.1), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(45, 212, 191, 0.25)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Terminal size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Python Reproducibility Lab</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--teal)' }}>In-Browser Code Sandbox</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Simulate paper algorithms and kinetic formulas with empirical replication metric verification.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--teal)', marginTop: 12, fontWeight: 600 }}>
+                Run Simulations <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/peer-review" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(244, 63, 94, 0.35)', background: 'linear-gradient(135deg, rgba(244,63,94,0.1), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(244, 63, 94, 0.25)', color: 'var(--rose)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Scale size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Peer Review Committee</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--rose)' }}>NeurIPS / Nature Arena</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                3-agent adversarial conference committee deliberation with automated author rebuttals.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--rose)', marginTop: 12, fontWeight: 600 }}>
+                Convene Committee <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/venture" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(245, 158, 11, 0.35)', background: 'linear-gradient(135deg, rgba(245,158,11,0.1), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(245, 158, 11, 0.25)', color: 'var(--amber)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Rocket size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>YC Venture Studio</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--amber)' }}>Lab-to-Startup Pitch Decks</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Transform laboratory discoveries into 10-slide VC pitch decks with market sizing & unit economics.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--amber)', marginTop: 12, fontWeight: 600 }}>
+                Build Pitch Deck <ArrowRight size={13} />
               </div>
             </Link>
           </div>

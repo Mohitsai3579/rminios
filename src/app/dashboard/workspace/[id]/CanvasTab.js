@@ -206,15 +206,20 @@ export default function CanvasTab({ workspaceId }) {
     e.preventDefault();
     if (!imageSearchQuery.trim()) return;
     setImageLoading(true);
-    // Simulate image search delay
-    setTimeout(() => {
+    try {
+      const q = encodeURIComponent(imageSearchQuery.trim());
+      const seed1 = Math.floor(Math.random() * 100000);
+      const seed2 = Math.floor(Math.random() * 100000);
+      const seed3 = Math.floor(Math.random() * 100000);
       setImageResults([
-        'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=200',
-        'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200',
-        'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=200'
+        `https://image.pollinations.ai/prompt/${q}?width=300&height=300&seed=${seed1}&nologo=true`,
+        `https://image.pollinations.ai/prompt/${q}%20scientific%20diagram?width=300&height=300&seed=${seed2}&nologo=true`,
+        `https://image.pollinations.ai/prompt/${q}%20minimal%20technical%20schematic?width=300&height=300&seed=${seed3}&nologo=true`
       ]);
-      setImageLoading(false);
-    }, 1500);
+    } catch (err) {
+      console.error('Dynamic image error:', err);
+    }
+    setImageLoading(false);
   }
 
   function insertImage(url) {

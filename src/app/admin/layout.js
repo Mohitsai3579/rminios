@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ShieldAlert, Users, FolderOpen, Activity, ArrowLeft, Settings, CreditCard } from 'lucide-react';
+import { ShieldAlert, Users, FolderOpen, Activity, ArrowLeft, Settings, CreditCard, Menu, X } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
@@ -48,13 +49,28 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar" style={{ borderRightColor: 'rgba(244,63,94,0.15)' }}>
+      {/* Mobile Menu Button */}
+      <button 
+        onClick={() => setSidebarOpen(!sidebarOpen)} 
+        className="mobile-menu-btn"
+        aria-label="Toggle admin menu"
+      >
+        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Mobile Overlay */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={{ borderRightColor: 'rgba(244,63,94,0.15)' }}>
         <div className="sidebar-logo" style={{ marginBottom: 20 }}>
           <ShieldAlert size={22} style={{ color: 'var(--rose)' }} />
           <h2 style={{ background: 'linear-gradient(135deg, var(--rose), #fb7185)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Admin Panel</h2>
         </div>
 
-        <div style={{ padding: '0 20px', marginBottom: 24 }}>
+        <div style={{ padding: '0 16px', marginBottom: 16 }}>
           <Link href="/dashboard" className="btn btn-secondary btn-sm w-full" style={{ justifyContent: 'center' }}>
             <ArrowLeft size={14} /> Back to Dashboard
           </Link>
@@ -63,7 +79,13 @@ export default function AdminLayout({ children }) {
         <div className="sidebar-section">Management</div>
         <nav className="sidebar-nav">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className={`sidebar-link ${pathname === item.href ? 'active' : ''}`} style={pathname === item.href ? { color: 'var(--rose)', background: 'rgba(244,63,94,0.1)' } : {}}>
+            <Link 
+              key={item.href} 
+              href={item.href} 
+              className={`sidebar-link ${pathname === item.href ? 'active' : ''}`} 
+              onClick={() => setSidebarOpen(false)}
+              style={pathname === item.href ? { color: 'var(--rose)', background: 'rgba(244,63,94,0.1)' } : {}}
+            >
               {item.icon}
               {item.label}
             </Link>

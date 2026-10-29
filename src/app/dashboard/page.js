@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Plus, FolderOpen, FileText, MessageSquare, Brain, ArrowRight, Zap, Cloud, Clock, Trash2, Bot, Code2, Sparkles, TrendingUp, Radio } from 'lucide-react';
+import { Plus, FolderOpen, FileText, MessageSquare, Brain, ArrowRight, Zap, Cloud, Clock, Trash2, Bot, Code2, Sparkles, TrendingUp, Radio, Award, ShieldCheck } from 'lucide-react';
 
 export default function DashboardPage() {
   const [workspaces, setWorkspaces] = useState([]);
@@ -45,12 +45,27 @@ export default function DashboardPage() {
     const { count: chatsCount } = await supabase.from('conversations').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
     const { count: ideasCount } = await supabase.from('brainstorms').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
     
+    // Calculate actual storage dynamically from files and datasets
+    const [filesSizeRes, datasetsSizeRes] = await Promise.all([
+      supabase.from('files').select('file_size, extracted_text').eq('user_id', user.id),
+      supabase.from('datasets').select('size_bytes').eq('user_id', user.id)
+    ]);
+    
+    let totalBytes = 0;
+    filesSizeRes.data?.forEach(f => {
+      totalBytes += (f.file_size || (f.extracted_text ? f.extracted_text.length * 1.2 : 300000));
+    });
+    datasetsSizeRes.data?.forEach(d => {
+      totalBytes += (d.size_bytes || 0);
+    });
+    const storageUsedMb = (totalBytes / (1024 * 1024)).toFixed(1);
+
     setStats({
       total: wsData?.length || 0,
       papers: papersCount || 0,
       chats: chatsCount || 0,
       ideas: ideasCount || 0,
-      storageUsed: Math.min(((papersCount || 0) * 2.5), 200) // Mock calculation, assume 2.5MB per paper
+      storageUsed: parseFloat(storageUsedMb)
     });
 
     setWorkspaces(wsData || []);
@@ -242,6 +257,52 @@ export default function DashboardPage() {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--amber)', marginTop: 12, fontWeight: 600 }}>
                 Open Radar <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/grants" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(34, 197, 94, 0.3)', background: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(34, 197, 94, 0.2)', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Award size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Grants & Funding Radar</div>
+                  <div style={{ fontSize: '0.72rem', color: '#22c55e' }}>NSF, NIH & EIC Matching</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Autonomous non-dilutive research grant proposal package and milestone synthesizer.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#22c55e', marginTop: 12, fontWeight: 600 }}>
+                Explore Grants <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/integrity" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(45, 212, 191, 0.3)', background: 'linear-gradient(135deg, rgba(45,212,191,0.08), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(45, 212, 191, 0.2)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Scientific Integrity Shield</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--teal)' }}>Hallucination & DOI Defense</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Real-time CrossRef and ArXiv citation verification to prevent synthetic paper retractions.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--teal)', marginTop: 12, fontWeight: 600 }}>
+                Audit Integrity <ArrowRight size={13} />
               </div>
             </Link>
           </div>

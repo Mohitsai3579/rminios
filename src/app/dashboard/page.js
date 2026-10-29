@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Plus, FolderOpen, FileText, MessageSquare, Brain, ArrowRight, Zap, Cloud, Clock, Trash2 } from 'lucide-react';
+import { Plus, FolderOpen, FileText, MessageSquare, Brain, ArrowRight, Zap, Cloud, Clock, Trash2, Bot, Code2, Sparkles, TrendingUp, Radio } from 'lucide-react';
 
 export default function DashboardPage() {
   const [workspaces, setWorkspaces] = useState([]);
@@ -16,6 +16,12 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({ total: 0, papers: 0, chats: 0, ideas: 0, storageUsed: 0 });
   const [workspaceStats, setWorkspaceStats] = useState({});
   const supabase = createClient();
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+  };
 
   useEffect(() => { loadDashboardData(); }, []);
 
@@ -128,23 +134,124 @@ export default function DashboardPage() {
 
       <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         
-        {/* Quick Action Widget */}
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={() => setShowCreate(true)} style={{ padding: '12px 24px' }}>
+        {/* Quick Action Widget & Innovation Highlights */}
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button className="btn btn-primary btn-3d" onClick={() => setShowCreate(true)} style={{ padding: '12px 24px', fontWeight: 700 }}>
             <Plus size={18} /> New Workspace
           </button>
           {workspaces.length > 0 && (
-            <Link href={`/dashboard/workspace/${workspaces[0].id}`} className="btn btn-secondary" style={{ padding: '12px 24px', background: 'var(--bg-tertiary)' }}>
+            <Link href={`/dashboard/workspace/${workspaces[0].id}`} className="btn btn-secondary btn-3d" style={{ padding: '12px 24px', background: 'var(--bg-tertiary)' }}>
               <Zap size={18} style={{ color: 'var(--amber)' }} /> Jump to Recent Workspace
             </Link>
           )}
+        </div>
+
+        {/* Real-World Innovation Hub - 4 Primary Platform Modules */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <Sparkles size={18} style={{ color: 'var(--accent)' }} />
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>Autonomous Innovation & Research Engines</h3>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            <Link 
+              href="/dashboard/codestudio" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(99, 102, 241, 0.3)', background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(99, 102, 241, 0.2)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Code2 size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Antigravity Code Studio</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--accent)' }}>Autonomous Developer Agent</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Multi-file project generation, PyTorch models, live sandbox testing, and architecture synthesis.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--accent)', marginTop: 12, fontWeight: 600 }}>
+                Launch Studio <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/swarm" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(16, 185, 129, 0.3)', background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16, 185, 129, 0.2)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Bot size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Global Swarm Arena</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--green)' }}>4-Agent Heterogeneous Fleet</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Literature gap, PyTorch architecture, adversarial ablations, and NeurIPS peer-reviewing.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--green)', marginTop: 12, fontWeight: 600 }}>
+                Enter Swarm <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/impact" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(168, 85, 247, 0.3)', background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TrendingUp size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Impact & Patent Lab</div>
+                  <div style={{ fontSize: '0.72rem', color: '#c084fc' }}>Research Commercialization</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Convert hypotheses into legal patent claim outlines, market TAM/SAM/SOM, and NSF grants.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#c084fc', marginTop: 12, fontWeight: 600 }}>
+                Explore Lab <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link 
+              href="/dashboard/radar" 
+              className="card card-3d card-spotlight" 
+              onMouseMove={handleMouseMove}
+              style={{ textDecoration: 'none', color: 'inherit', border: '1px solid rgba(245, 158, 11, 0.3)', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(26,27,38,0.7))', padding: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(245, 158, 11, 0.2)', color: 'var(--amber)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Radio size={20} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Global Literature Radar</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--amber)' }}>Live ArXiv & bioRxiv Feed</div>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Streaming global pre-prints with automated citation trend analysis and AI clustering.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--amber)', marginTop: 12, fontWeight: 600 }}>
+                Open Radar <ArrowRight size={13} />
+              </div>
+            </Link>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
           
           {/* Main Stat Cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="card card-3d card-spotlight" onMouseMove={handleMouseMove} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ padding: 16, background: 'rgba(99,102,241,0.1)', color: 'var(--accent)', borderRadius: '50%' }}>
                 <FileText size={24} />
               </div>
@@ -154,7 +261,7 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="card card-3d card-spotlight" onMouseMove={handleMouseMove} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ padding: 16, background: 'rgba(16,185,129,0.1)', color: 'var(--emerald)', borderRadius: '50%' }}>
                 <MessageSquare size={24} />
               </div>
@@ -164,7 +271,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="card card-3d card-spotlight" onMouseMove={handleMouseMove} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ padding: 16, background: 'rgba(168,85,247,0.1)', color: 'var(--purple)', borderRadius: '50%' }}>
                 <Brain size={24} />
               </div>
@@ -176,7 +283,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Cloud Quota Widget */}
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card card-3d card-spotlight" onMouseMove={handleMouseMove} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <h4 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
               <Cloud size={18} style={{ color: 'var(--blue)' }} /> Storage & API Quota
             </h4>
@@ -195,7 +302,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity Radar */}
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16, flex: 2 }}>
+          <div className="card card-3d card-spotlight" onMouseMove={handleMouseMove} style={{ display: 'flex', flexDirection: 'column', gap: 16, flex: 2 }}>
             <h4 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
               <Clock size={18} style={{ color: 'var(--amber)' }} /> Recent Uploads
             </h4>
@@ -229,7 +336,13 @@ export default function DashboardPage() {
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
             {workspaces.map(ws => (
-              <Link key={ws.id} href={`/dashboard/workspace/${ws.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <Link 
+                key={ws.id} 
+                href={`/dashboard/workspace/${ws.id}`} 
+                className="card card-3d card-spotlight" 
+                onMouseMove={handleMouseMove}
+                style={{ textDecoration: 'none', color: 'inherit', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', gap: 16 }}
+              >
                 <div>
                   <h4 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{ws.name} <ArrowRight size={16} style={{ color: 'var(--text-muted)' }} /></span>

@@ -1,12 +1,47 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Headphones, Play, Pause, Volume2, VolumeX, Radio, Sparkles, Clock, RotateCcw, X, ExternalLink, Music2 } from 'lucide-react';
+import { 
+  Headphones, Play, Pause, Volume2, Radio, Sparkles, Clock, 
+  RotateCcw, X, ExternalLink, Music2, LogIn, CheckCircle2, 
+  ChevronDown, ChevronUp, AlertCircle, RefreshCw 
+} from 'lucide-react';
 
 const SPOTIFY_PLAYLISTS = [
-  { name: 'Lo-Fi Chill & Code', id: '0vvXsW14Kd3bCuOp41F9K3', uri: 'https://open.spotify.com/embed/playlist/0vvXsW14Kd3bCuOp41F9K3?utm_source=generator&theme=0' },
-  { name: 'Deep Focus Ambient', id: '37i9dQZF1DWZeKCadgRdKQ', uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0' },
-  { name: 'Classical Brain Power', id: '37i9dQZF1DWVfe3v7R0Z0n', uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWVfe3v7R0Z0n?utm_source=generator&theme=0' },
-  { name: 'Synthwave Chill / Retrowave', id: '37i9dQZF1DXdLEN7aqioXM', uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7aqioXM?utm_source=generator&theme=0' }
+  { 
+    name: 'Lo-Fi Chill & Code', 
+    id: '37i9dQZF1DWWQRwui0ExPn', 
+    type: 'playlist', 
+    uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0',
+    desc: 'Deep focus lofi beats for programming'
+  },
+  { 
+    name: 'Deep Focus Ambient', 
+    id: '37i9dQZF1DWZeKCadgRdKQ', 
+    type: 'playlist', 
+    uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0',
+    desc: 'Atmospheric post-rock & ambient flow'
+  },
+  { 
+    name: 'Peaceful Piano Concentration', 
+    id: '37i9dQZF1DX4sWSpwq3LiO', 
+    type: 'playlist', 
+    uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0',
+    desc: 'Calm acoustic piano melodies'
+  },
+  { 
+    name: 'Brain Food (Neuro Beats)', 
+    id: '37i9dQZF1DX3qCx52SuA2W', 
+    type: 'playlist', 
+    uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX3qCx52SuA2W?utm_source=generator&theme=0',
+    desc: 'Hypnotic electronic focus rhythms'
+  },
+  { 
+    name: 'Synthwave Chill / Space', 
+    id: '37i9dQZF1DXdLEN7aqioXM', 
+    type: 'playlist', 
+    uri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7aqioXM?utm_source=generator&theme=0',
+    desc: 'Retro synthwave and cosmic focus'
+  }
 ];
 
 export default function SoundscapePlayer() {
@@ -14,6 +49,9 @@ export default function SoundscapePlayer() {
   const [activeMode, setActiveMode] = useState('spotify'); // 'spotify' | 'ambient' | 'pomodoro'
   const [selectedPlaylist, setSelectedPlaylist] = useState(SPOTIFY_PLAYLISTS[0]);
   const [customSpotifyUrl, setCustomSpotifyUrl] = useState('');
+  const [urlStatus, setUrlStatus] = useState({ type: '', msg: '' });
+  const [playerHeight, setPlayerHeight] = useState('compact'); // 'compact' (152) | 'expanded' (352)
+  const [isSpotifyConnected, setIsSpotifyConnected] = useState(false);
 
   // Web Audio Native Generator state
   const [isPlayingAmbient, setIsPlayingAmbient] = useState(false);
@@ -30,6 +68,16 @@ export default function SoundscapePlayer() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
 
+  // Load Spotify login state from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('spotify_connected');
+      if (stored === 'true') {
+        setIsSpotifyConnected(true);
+      }
+    } catch (e) {}
+  }, []);
+
   // Handle Pomodoro timer
   useEffect(() => {
     let interval = null;
@@ -40,7 +88,6 @@ export default function SoundscapePlayer() {
     } else if (timeLeft === 0) {
       setTimerRunning(false);
       setSessionsCompleted(prev => prev + 1);
-      // Play soft completion chime
       playBeep();
       setTimeLeft(25 * 60);
     }
@@ -95,7 +142,6 @@ export default function SoundscapePlayer() {
       gainNodeRef.current = masterGain;
 
       if (type === 'rain' || type === 'whitenoise') {
-        // Pink / White noise procedural synthesis
         const bufferSize = ctx.sampleRate * 2;
         const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
@@ -134,13 +180,12 @@ export default function SoundscapePlayer() {
         noiseSourceRef.current = whiteNoise;
 
       } else if (type === 'binaural') {
-        // 40Hz Gamma Focus Binaural Frequency
         const oscLeft = ctx.createOscillator();
         const oscRight = ctx.createOscillator();
         const merger = ctx.createChannelMerger(2);
 
         oscLeft.frequency.value = 200; // Base carrier 200Hz
-        oscRight.frequency.value = 240; // 40Hz Gamma delta
+        oscRight.frequency.value = 240; // 40Hz Gamma focus delta
 
         oscLeft.connect(merger, 0, 0);
         oscRight.connect(merger, 0, 1);
@@ -152,7 +197,6 @@ export default function SoundscapePlayer() {
         osc2Ref.current = oscRight;
 
       } else if (type === 'waves') {
-        // Oscillating ocean swell simulation
         const bufferSize = ctx.sampleRate * 3;
         const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
@@ -170,7 +214,7 @@ export default function SoundscapePlayer() {
         filter.Q.value = 1.2;
 
         const lfo = ctx.createOscillator();
-        lfo.frequency.value = 0.12; // slow swell
+        lfo.frequency.value = 0.12; // slow ocean swell
         const lfoGain = ctx.createGain();
         lfoGain.gain.value = 300;
 
@@ -204,43 +248,104 @@ export default function SoundscapePlayer() {
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
+  // Launch Spotify login popup
+  const handleSpotifyLogin = () => {
+    const width = 560;
+    const height = 700;
+    const left = typeof window !== 'undefined' ? window.screen.width / 2 - width / 2 : 100;
+    const top = typeof window !== 'undefined' ? window.screen.height / 2 - height / 2 : 100;
+    const loginUrl = 'https://accounts.spotify.com/en/login?continue=https%3A%2F%2Fopen.spotify.com';
+    
+    window.open(
+      loginUrl,
+      'SpotifyLoginPopup',
+      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`
+    );
+    setIsSpotifyConnected(true);
+    try {
+      localStorage.setItem('spotify_connected', 'true');
+    } catch (e) {}
+  };
+
+  // Open active playlist in native app or open.spotify.com
+  const handleOpenInSpotify = () => {
+    let target = `https://open.spotify.com/playlist/${selectedPlaylist.id}`;
+    if (selectedPlaylist.rawUrl) {
+      target = selectedPlaylist.rawUrl;
+    } else if (selectedPlaylist.type && selectedPlaylist.id) {
+      target = `https://open.spotify.com/${selectedPlaylist.type}/${selectedPlaylist.id}`;
+    }
+    window.open(target, '_blank', 'noopener,noreferrer');
+  };
+
+  // Smart parser for Spotify URLs and URIs
   const handleCustomSpotify = (e) => {
     e.preventDefault();
     if (!customSpotifyUrl.trim()) return;
-    let url = customSpotifyUrl.trim();
-    if (url.includes('spotify.com')) {
-      if (!url.includes('/embed/')) {
-        url = url.replace('spotify.com/', 'spotify.com/embed/');
-      }
-      setSelectedPlaylist({ name: 'Custom Playlist', id: 'custom', uri: url });
+    const str = customSpotifyUrl.trim();
+
+    // Check Spotify URI format: spotify:track:id or spotify:playlist:id
+    const uriMatch = str.match(/spotify:(playlist|track|album|artist|episode):([a-zA-Z0-9]+)/i);
+    if (uriMatch) {
+      const type = uriMatch[1].toLowerCase();
+      const id = uriMatch[2];
+      setSelectedPlaylist({
+        name: `Custom ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+        id,
+        type,
+        rawUrl: `https://open.spotify.com/${type}/${id}`,
+        uri: `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`,
+        desc: `Loaded via URI (${id})`
+      });
+      setUrlStatus({ type: 'success', msg: `Successfully loaded custom ${type}!` });
+      return;
     }
+
+    // Check Spotify Web URL: https://open.spotify.com/(intl-xx/)?(playlist|track|album)/id
+    const urlMatch = str.match(/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(playlist|track|album|artist|episode)\/([a-zA-Z0-9]+)/i);
+    if (urlMatch) {
+      const type = urlMatch[1].toLowerCase();
+      const id = urlMatch[2];
+      setSelectedPlaylist({
+        name: `Custom ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+        id,
+        type,
+        rawUrl: `https://open.spotify.com/${type}/${id}`,
+        uri: `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`,
+        desc: `Loaded from Spotify web link`
+      });
+      setUrlStatus({ type: 'success', msg: `Successfully loaded custom ${type}!` });
+      return;
+    }
+
+    setUrlStatus({ type: 'error', msg: 'Invalid link. Please paste a Spotify playlist, track, or album URL.' });
   };
 
   return (
     <>
-      {/* Floating Focus & Music Dock Button */}
-      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999 }}>
+      {/* Floating Focus & Music Dock Button (Separated cleanly from Sara AI Assistant) */}
+      <div className="soundscape-trigger-dock">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="btn"
           style={{
             borderRadius: '50px',
-            padding: '10px 18px',
-            background: 'linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(99, 102, 241, 0.3))',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(30, 215, 96, 0.4)',
+            padding: '9px 16px',
+            background: 'linear-gradient(135deg, rgba(30, 215, 96, 0.22), rgba(99, 102, 241, 0.28))',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(30, 215, 96, 0.45)',
             color: '#fff',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35)',
+            gap: 9,
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.45), 0 0 16px rgba(30, 215, 96, 0.2)',
             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             cursor: 'pointer'
           }}
-          title="Open Focus Music & Soundscape"
+          title="Open Focus Audio & Spotify Player"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Headphones size={18} style={{ color: '#1ed760' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Headphones size={17} style={{ color: '#1ed760' }} />
             {isPlayingAmbient && (
               <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
                 <span className="sound-bar" style={{ height: 10, width: 2, background: '#1ed760', animation: 'soundPulse 0.8s infinite ease-in-out' }} />
@@ -249,9 +354,11 @@ export default function SoundscapePlayer() {
               </span>
             )}
           </div>
-          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Deep Work Audio</span>
+          <span className="deep-work-label" style={{ fontSize: '0.82rem', fontWeight: 600, letterSpacing: 0.2 }}>
+            Deep Work Audio
+          </span>
           {timerRunning && (
-            <span style={{ fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', padding: '2px 8px', borderRadius: 10, fontWeight: 700 }}>
+            <span style={{ fontSize: '0.72rem', background: 'rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '2px 7px', borderRadius: 10, fontWeight: 700 }}>
               {formatTime(timeLeft)}
             </span>
           )}
@@ -260,40 +367,37 @@ export default function SoundscapePlayer() {
 
       {/* Floating Soundscape & Spotify Glass Panel */}
       {isOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 74,
-            right: 20,
-            width: 380,
-            maxWidth: 'calc(100vw - 32px)',
-            background: 'rgba(15, 17, 26, 0.92)',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: 18,
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(30, 215, 96, 0.15)',
-            zIndex: 10000,
-            overflow: 'hidden',
-            animation: 'fadeInUp 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-        >
+        <div className="soundscape-panel-dock">
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'linear-gradient(135deg, rgba(30,215,96,0.08), rgba(99,102,241,0.05))' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Music2 size={18} style={{ color: '#1ed760' }} />
-              <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>Research Soundscape & Focus</span>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(30, 215, 96, 0.2)', border: '1px solid rgba(30, 215, 96, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Music2 size={16} style={{ color: '#1ed760' }} />
+              </div>
+              <div>
+                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fff', display: 'block', lineHeight: 1.2 }}>
+                  Deep Work Audio Suite
+                </span>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                  Spotify & Generative Soundscapes
+                </span>
+              </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="btn btn-icon btn-ghost btn-sm" style={{ color: 'var(--text-muted)' }}>
+            <button 
+              onClick={() => setIsOpen(false)} 
+              className="btn btn-icon btn-ghost btn-sm" 
+              style={{ color: 'var(--text-muted)', width: 28, height: 28, padding: 0 }}
+            >
               <X size={16} />
             </button>
           </div>
 
-          {/* Navigation Pills */}
-          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: 4, margin: '12px 16px', borderRadius: 10 }}>
+          {/* Navigation Mode Pills */}
+          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.35)', padding: 4, margin: '10px 14px 6px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
             {[
-              { id: 'spotify', label: 'Spotify', icon: <Radio size={14} /> },
-              { id: 'ambient', label: 'Binaural/Rain', icon: <Sparkles size={14} /> },
-              { id: 'pomodoro', label: 'Pomodoro', icon: <Clock size={14} /> }
+              { id: 'spotify', label: 'Spotify Focus', icon: <Radio size={13} /> },
+              { id: 'ambient', label: 'Binaural & Rain', icon: <Sparkles size={13} /> },
+              { id: 'pomodoro', label: 'Sprint Timer', icon: <Clock size={13} /> }
             ].map(m => (
               <button
                 key={m.id}
@@ -305,12 +409,12 @@ export default function SoundscapePlayer() {
                   justifyContent: 'center',
                   gap: 6,
                   padding: '7px 0',
-                  borderRadius: 8,
-                  fontSize: '0.8rem',
+                  borderRadius: 7,
+                  fontSize: '0.76rem',
                   fontWeight: activeMode === m.id ? 600 : 500,
-                  background: activeMode === m.id ? 'var(--bg-tertiary)' : 'transparent',
-                  color: activeMode === m.id ? '#fff' : 'var(--text-muted)',
-                  border: activeMode === m.id ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                  background: activeMode === m.id ? (m.id === 'spotify' ? 'rgba(30, 215, 96, 0.18)' : 'rgba(99, 102, 241, 0.25)') : 'transparent',
+                  color: activeMode === m.id ? (m.id === 'spotify' ? '#1ed760' : '#fff') : 'var(--text-muted)',
+                  border: activeMode === m.id ? (m.id === 'spotify' ? '1px solid rgba(30,215,96,0.35)' : '1px solid rgba(99,102,241,0.35)') : '1px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
@@ -321,25 +425,102 @@ export default function SoundscapePlayer() {
           </div>
 
           {/* Body Content */}
-          <div style={{ padding: '0 16px 16px' }}>
+          <div style={{ padding: '8px 14px 14px' }}>
 
-            {/* MODE 1: SPOTIFY EMBED */}
+            {/* MODE 1: SPOTIFY EMBED WITH LOGIN & APP HANDOFF */}
             {activeMode === 'spotify' && (
               <div>
-                <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, marginBottom: 10 }}>
+                {/* Spotify Authentication & Connect Banner */}
+                <div style={{
+                  background: isSpotifyConnected ? 'rgba(30, 215, 96, 0.1)' : 'rgba(30, 215, 96, 0.07)',
+                  border: isSpotifyConnected ? '1px solid rgba(30, 215, 96, 0.3)' : '1px dashed rgba(30, 215, 96, 0.35)',
+                  borderRadius: 10,
+                  padding: '9px 12px',
+                  marginBottom: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 10
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {isSpotifyConnected ? (
+                      <CheckCircle2 size={16} style={{ color: '#1ed760', flexShrink: 0 }} />
+                    ) : (
+                      <LogIn size={16} style={{ color: '#1ed760', flexShrink: 0 }} />
+                    )}
+                    <div>
+                      <div style={{ fontSize: '0.74rem', fontWeight: 600, color: '#fff' }}>
+                        {isSpotifyConnected ? 'Spotify Session Connected' : 'Connect Spotify Account'}
+                      </div>
+                      <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)', lineHeight: 1.2 }}>
+                        {isSpotifyConnected 
+                          ? 'Full track playback enabled in browser' 
+                          : 'Log in to unlock full tracks without 30s preview limit'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    <button
+                      onClick={handleSpotifyLogin}
+                      className="btn btn-sm"
+                      style={{
+                        fontSize: '0.68rem',
+                        padding: '4px 9px',
+                        borderRadius: 6,
+                        background: '#1ed760',
+                        color: '#000',
+                        fontWeight: 700,
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4
+                      }}
+                      title="Log into Spotify to authenticate playback"
+                    >
+                      <LogIn size={12} />
+                      {isSpotifyConnected ? 'Switch' : 'Log In'}
+                    </button>
+
+                    <button
+                      onClick={handleOpenInSpotify}
+                      className="btn btn-ghost btn-sm"
+                      style={{
+                        fontSize: '0.68rem',
+                        padding: '4px 8px',
+                        borderRadius: 6,
+                        color: '#1ed760',
+                        border: '1px solid rgba(30, 215, 96, 0.3)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4
+                      }}
+                      title="Open current playlist in Spotify App or Web Player"
+                    >
+                      <ExternalLink size={12} />
+                      Open App
+                    </button>
+                  </div>
+                </div>
+
+                {/* Playlist Selector Pills */}
+                <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 8, scrollbarWidth: 'thin' }}>
                   {SPOTIFY_PLAYLISTS.map(p => (
                     <button
                       key={p.id}
-                      onClick={() => setSelectedPlaylist(p)}
+                      onClick={() => { setSelectedPlaylist(p); setUrlStatus({ type: '', msg: '' }); }}
                       style={{
                         whiteSpace: 'nowrap',
-                        fontSize: '0.72rem',
-                        padding: '5px 10px',
-                        borderRadius: 20,
-                        background: selectedPlaylist.id === p.id ? 'rgba(30, 215, 96, 0.2)' : 'rgba(255,255,255,0.05)',
-                        border: selectedPlaylist.id === p.id ? '1px solid #1ed760' : '1px solid rgba(255,255,255,0.08)',
+                        fontSize: '0.7rem',
+                        padding: '4px 10px',
+                        borderRadius: 16,
+                        background: selectedPlaylist.id === p.id ? 'rgba(30, 215, 96, 0.22)' : 'rgba(255,255,255,0.04)',
+                        border: selectedPlaylist.id === p.id ? '1px solid #1ed760' : '1px solid rgba(255,255,255,0.07)',
                         color: selectedPlaylist.id === p.id ? '#1ed760' : 'var(--text-secondary)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
                       }}
                     >
                       {p.name}
@@ -347,76 +528,126 @@ export default function SoundscapePlayer() {
                   ))}
                 </div>
 
-                <div style={{ borderRadius: 12, overflow: 'hidden', height: 152, background: '#000', marginBottom: 12 }}>
+                {/* Spotify Iframe Player with Size Toggle */}
+                <div style={{ 
+                  borderRadius: 12, 
+                  overflow: 'hidden', 
+                  height: playerHeight === 'compact' ? 152 : 352, 
+                  background: '#000', 
+                  marginBottom: 8,
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  position: 'relative',
+                  transition: 'height 0.25s ease'
+                }}>
                   <iframe
+                    key={selectedPlaylist.uri}
                     src={selectedPlaylist.uri}
                     width="100%"
-                    height="152"
+                    height={playerHeight === 'compact' ? "152" : "352"}
                     frameBorder="0"
                     allowFullScreen=""
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                     loading="lazy"
+                    style={{ borderRadius: 12, display: 'block' }}
                   />
                 </div>
 
+                {/* Player Controls & Custom Input Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                    Playing: <strong style={{ color: '#fff' }}>{selectedPlaylist.name}</strong>
+                  </span>
+                  <button
+                    onClick={() => setPlayerHeight(prev => prev === 'compact' ? 'expanded' : 'compact')}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--accent-light)',
+                      fontSize: '0.68rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4
+                    }}
+                  >
+                    {playerHeight === 'compact' ? <><ChevronDown size={13} /> Full Tracklist</> : <><ChevronUp size={13} /> Compact View</>}
+                  </button>
+                </div>
+
+                {/* Custom Spotify URL Loader */}
                 <form onSubmit={handleCustomSpotify} style={{ display: 'flex', gap: 6 }}>
                   <input
                     type="text"
-                    placeholder="Paste Spotify playlist/track URL..."
+                    placeholder="Paste Spotify playlist, track, or album URL..."
                     className="input"
                     value={customSpotifyUrl}
-                    onChange={e => setCustomSpotifyUrl(e.target.value)}
-                    style={{ fontSize: '0.75rem', padding: '6px 10px', height: 32 }}
+                    onChange={e => { setCustomSpotifyUrl(e.target.value); setUrlStatus({ type: '', msg: '' }); }}
+                    style={{ fontSize: '0.73rem', padding: '6px 10px', height: 32, flex: 1 }}
                   />
-                  <button type="submit" className="btn btn-secondary btn-sm" style={{ padding: '0 10px', height: 32 }}>
+                  <button type="submit" className="btn btn-secondary btn-sm" style={{ padding: '0 12px', height: 32, fontSize: '0.72rem' }}>
                     Load
                   </button>
                 </form>
+
+                {urlStatus.msg && (
+                  <div style={{
+                    marginTop: 6,
+                    fontSize: '0.68rem',
+                    color: urlStatus.type === 'success' ? '#1ed760' : '#f87171',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5
+                  }}>
+                    {urlStatus.type === 'success' ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                    {urlStatus.msg}
+                  </div>
+                )}
               </div>
             )}
 
             {/* MODE 2: GENERATIVE AMBIENT / BINAURAL (Web Audio Native) */}
             {activeMode === 'ambient' && (
               <div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 12 }}>
-                  Zero-login procedural sound engine synthesized directly in your browser for deep cognitive flow.
+                <p style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.3 }}>
+                  Zero-login procedural sound synthesis running directly in Web Audio for instant cognitive immersion.
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
                   {[
-                    { id: 'rain', label: '🌧️ Gentle Rain', desc: 'Pink Noise Filter' },
-                    { id: 'binaural', label: '🧘 40Hz Gamma', desc: 'Focus Binaural' },
-                    { id: 'waves', label: '🌊 Ocean Swell', desc: 'LFO Sine Swell' },
-                    { id: 'whitenoise', label: '☕ White Noise', desc: 'Broadband Mask' }
+                    { id: 'rain', label: '🌧️ Gentle Rain', desc: 'Pink Noise Lowpass' },
+                    { id: 'binaural', label: '🧘 40Hz Gamma', desc: 'Stereo Focus Waves' },
+                    { id: 'waves', label: '🌊 Ocean Swell', desc: 'LFO Sine Filter' },
+                    { id: 'whitenoise', label: '☕ White Noise', desc: 'Broadband Acoustic Mask' }
                   ].map(a => (
                     <button
                       key={a.id}
                       onClick={() => { setAmbientType(a.id); startAmbient(a.id); }}
                       style={{
-                        padding: '10px 12px',
+                        padding: '9px 11px',
                         borderRadius: 10,
                         textAlign: 'left',
                         background: ambientType === a.id && isPlayingAmbient ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255,255,255,0.04)',
                         border: ambientType === a.id && isPlayingAmbient ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.08)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#fff' }}>{a.label}</div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>{a.desc}</div>
+                      <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#fff' }}>{a.label}</div>
+                      <div style={{ fontSize: '0.67rem', color: 'var(--text-muted)', marginTop: 2 }}>{a.desc}</div>
                     </button>
                   ))}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: 'rgba(0,0,0,0.25)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
                   <button
                     onClick={() => isPlayingAmbient ? stopAmbient() : startAmbient(ambientType)}
                     className="btn btn-primary btn-sm"
-                    style={{ flex: 1, marginRight: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                    style={{ flex: 1, marginRight: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 32, fontSize: '0.75rem' }}
                   >
-                    {isPlayingAmbient ? <><Pause size={14} /> Stop Ambient</> : <><Play size={14} /> Play {ambientType}</>}
+                    {isPlayingAmbient ? <><Pause size={13} /> Stop Soundscape</> : <><Play size={13} /> Start {ambientType}</>}
                   </button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Volume2 size={16} style={{ color: 'var(--text-muted)' }} />
+                    <Volume2 size={15} style={{ color: 'var(--text-muted)' }} />
                     <input
                       type="range"
                       min="0"
@@ -424,20 +655,20 @@ export default function SoundscapePlayer() {
                       step="0.05"
                       value={ambientVolume}
                       onChange={e => setAmbientVolume(parseFloat(e.target.value))}
-                      style={{ width: 80, accentColor: 'var(--accent)' }}
+                      style={{ width: 75, accentColor: 'var(--accent)' }}
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* MODE 3: POMODORO DEEP WORK TIMER */}
+            {/* MODE 3: POMODORO DEEP WORK SPRINT TIMER */}
             {activeMode === 'pomodoro' && (
-              <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                <div style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: 2, fontFamily: 'monospace', color: '#fff', marginBottom: 8 }}>
+              <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
+                <div style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: 2, fontFamily: 'monospace', color: '#fff', marginBottom: 6 }}>
                   {formatTime(timeLeft)}
                 </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 16 }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 14 }}>
                   Completed Deep Work Sprints: <strong style={{ color: 'var(--accent)' }}>{sessionsCompleted}</strong>
                 </div>
 
@@ -445,16 +676,16 @@ export default function SoundscapePlayer() {
                   <button
                     onClick={() => setTimerRunning(!timerRunning)}
                     className="btn btn-primary btn-sm"
-                    style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem' }}
                   >
-                    {timerRunning ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Start Sprint</>}
+                    {timerRunning ? <><Pause size={13} /> Pause</> : <><Play size={13} /> Start Sprint</>}
                   </button>
                   <button
                     onClick={() => { setTimerRunning(false); setTimeLeft(25 * 60); }}
                     className="btn btn-ghost btn-sm"
-                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem' }}
                   >
-                    <RotateCcw size={14} /> Reset
+                    <RotateCcw size={13} /> Reset
                   </button>
                 </div>
               </div>

@@ -23,6 +23,22 @@ export default function SaraAssistant() {
     });
   }, [supabase]);
 
+  // Sync open state to document.body so floating elements coordinate
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (isOpen && !isMinimized) {
+        document.body.classList.add('sara-open');
+      } else {
+        document.body.classList.remove('sara-open');
+      }
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('sara-open');
+      }
+    };
+  }, [isOpen, isMinimized]);
+
   useEffect(() => {
     const saved = localStorage.getItem(`sara_history_${userId}`);
     if (saved) {

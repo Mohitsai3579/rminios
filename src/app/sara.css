@@ -263,3 +263,57 @@
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1); }
 }
+
+/* Soundscape & Sara Docking Coordination */
+.soundscape-trigger-dock {
+  position: fixed;
+  bottom: 2rem;
+  right: 105px;
+  z-index: 9990;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+}
+
+.soundscape-panel-dock {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 2rem;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  z-index: 10000;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+}
+
+body.sara-open .soundscape-trigger-dock {
+  right: 420px !important;
+}
+
+body.sara-open .soundscape-panel-dock {
+  right: 420px !important;
+}
+
+@media (max-width: 768px) {
+  .soundscape-trigger-dock {
+    right: 86px !important;
+    bottom: 2rem !important;
+  }
+  .soundscape-trigger-dock .deep-work-label {
+    display: none;
+  }
+  .soundscape-panel-dock {
+    right: 12px !important;
+    left: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    bottom: 5.5rem !important;
+  }
+  body.sara-open .soundscape-trigger-dock {
+    right: 86px !important;
+    bottom: auto !important;
+    top: 14px !important;
+  }
+  body.sara-open .soundscape-panel-dock {
+    right: 12px !important;
+    left: 12px !important;
+    bottom: 5rem !important;
+  }
+}

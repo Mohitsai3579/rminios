@@ -337,16 +337,22 @@
 }
 
 @media (max-width: 640px) {
+  .sara-orb {
+    bottom: 1.2rem !important;
+    right: 1.2rem !important;
+    width: 52px !important;
+    height: 52px !important;
+  }
   .sara-window {
-    right: 12px !important;
-    left: 12px !important;
-    bottom: 12px !important;
+    right: 8px !important;
+    left: 8px !important;
+    bottom: 8px !important;
     width: auto !important;
     max-width: none !important;
-    height: 82vh !important;
+    height: 85vh !important;
   }
   .sara-window.minimized {
-    height: 60px !important;
+    height: 56px !important;
   }
 }
 

@@ -820,6 +820,19 @@
   color: #1ed760;
 }
 
+.dynamic-island-greeting {
+  animation: greetingPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes greetingPulse {
+  0% {
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 12px 30px rgba(0, 0, 0, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 28px rgba(34, 197, 94, 0.6), 0 16px 40px rgba(0, 0, 0, 0.85);
+  }
+}
+
 /* ==========================================================================
    5. MOBILE RESPONSIVE
    ========================================================================== */

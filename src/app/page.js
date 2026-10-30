@@ -100,13 +100,13 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="landing-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Brain size={28} style={{ color: '#fff' }} />
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em' }}>RMinios</h2>
+          <Brain size={26} style={{ color: '#fff' }} />
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>RMinios</h2>
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <Link href="/login" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color='#fff'} onMouseOut={e => e.target.style.color='rgba(255,255,255,0.7)'}>Sign In</Link>
+        <div className="landing-nav-links" style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <Link href="/login" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.88rem', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color='#fff'} onMouseOut={e => e.target.style.color='rgba(255,255,255,0.7)'}>Sign In</Link>
           <MagnetButton>
-            <Link href="/signup" className="premium-btn">Get Early Access</Link>
+            <Link href="/signup" className="premium-btn" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>Get Early Access</Link>
           </MagnetButton>
         </div>
       </nav>
@@ -125,29 +125,29 @@ export default function LandingPage() {
             hidden: {},
             show: { transition: { staggerChildren: 0.15 } },
           }}
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10 }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10, width: '100%' }}
         >
-          <motion.div variants={FADE_UP_ANIMATION_VARIANTS} style={{ marginBottom: 24, padding: '8px 20px', borderRadius: 30, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', fontWeight: 600 }}>
+          <motion.div variants={FADE_UP_ANIMATION_VARIANTS} style={{ marginBottom: 20, padding: '6px 16px', borderRadius: 30, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', fontWeight: 600 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
             RMinios OS 2.0 is now live
           </motion.div>
           
           <motion.h1 variants={FADE_UP_ANIMATION_VARIANTS} className="hero-title">
-            The intelligent layer for <br/><span className="text-gradient-premium">modern research.</span>
+            The intelligent layer for <br className="hidden-mobile" /><span className="text-gradient-premium">modern research.</span>
           </motion.h1>
           
           <motion.p variants={FADE_UP_ANIMATION_VARIANTS} className="hero-subtitle">
             An operating system designed to orchestrate knowledge, execute data pipelines, and draft publications at the speed of thought.
           </motion.p>
           
-          <motion.div variants={FADE_UP_ANIMATION_VARIANTS} style={{ display: 'flex', gap: 16 }}>
-            <MagnetButton>
-              <Link href="/signup" className="premium-btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="hero-cta-group">
+            <MagnetButton style={{ width: '100%' }}>
+              <Link href="/signup" className="premium-btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none', width: '100%' }}>
                 Start Building <ArrowRight size={18} />
               </Link>
             </MagnetButton>
-            <MagnetButton>
-              <button className="premium-btn" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <MagnetButton style={{ width: '100%' }}>
+              <button className="premium-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%' }}>
                 <Terminal size={18} /> Read the Docs
               </button>
             </MagnetButton>
@@ -255,7 +255,7 @@ export default function LandingPage() {
             <UploadCloud size={24} style={{ color: '#38bdf8' }} /> Document Ingestion Pipeline
           </motion.div>
           <div className="flow-connector" style={{ width: 2, height: 40 }} />
-          <div style={{ display: 'flex', gap: 40 }}>
+          <div className="flow-split-row" style={{ display: 'flex', gap: 40, justifyContent: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="flow-node">
                 <Database size={24} style={{ color: '#a855f7' }} /> Vector Splitting & Chunks

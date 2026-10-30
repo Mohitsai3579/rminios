@@ -1,14 +1,17 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Send, X, Minimize2, Maximize2, Sparkles, Server, BarChart, 
   FileText, RefreshCw, Calendar, Cpu, Compass, FlaskConical, 
-  Mic, ShieldCheck, Rocket, ChevronDown
+  Mic, ShieldCheck, Rocket, ChevronDown, Lock, CheckCircle2
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { createClient } from '@/lib/supabase/client';
 import { useDynamicIsland } from '@/context/DynamicIslandContext';
+
+const MAX_GUEST_QUERIES = 3;
 
 const QUICK_ACTIONS = [
   { label: "📅 What is today's date & day?", prompt: "What is today's exact date, day of the week, and current time?" },
@@ -33,6 +36,8 @@ export default function SaraAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [userId, setUserId] = useState('visitor');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [guestQueryCount, setGuestQueryCount] = useState(0);
   const [selectedProvider, setSelectedProvider] = useState('google');
   const [liveDateString, setLiveDateString] = useState('');
   const [messages, setMessages] = useState([
@@ -66,10 +71,36 @@ export default function SaraAssistant() {
     return () => clearInterval(interval);
   }, []);
 
+  // Monitor auth status & load guest count
   useEffect(() => {
+    // Initial check
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id);
+      if (user) {
+        setUserId(user.id);
+        setIsAuthenticated(true);
+      } else {
+        setUserId('visitor');
+        setIsAuthenticated(false);
+        try {
+          const storedCount = parseInt(localStorage.getItem('sara_guest_query_count') || '0', 10);
+          setGuestQueryCount(isNaN(storedCount) ? 0 : storedCount);
+        } catch (e) {}
+      }
     });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        setIsAuthenticated(true);
+      } else {
+        setUserId('visitor');
+        setIsAuthenticated(false);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [supabase]);
 
   // Sync open state to document.body so floating elements coordinate
@@ -88,6 +119,7 @@ export default function SaraAssistant() {
     };
   }, [isOpen, isMinimized]);
 
+  // Load chat history
   useEffect(() => {
     const saved = localStorage.getItem(`sara_history_${userId}`);
     if (saved) {
@@ -103,6 +135,7 @@ export default function SaraAssistant() {
     }
   }, [userId]);
 
+  // Persist chat history
   useEffect(() => {
     if (messages.length > 1) {
       localStorage.setItem(`sara_history_${userId}`, JSON.stringify(messages));
@@ -120,6 +153,22 @@ export default function SaraAssistant() {
   const sendMessage = async (userPrompt) => {
     const promptText = (userPrompt || input).trim();
     if (!promptText || loading) return;
+
+    // Check Guest Limit
+    if (!isAuthenticated && guestQueryCount >= MAX_GUEST_QUERIES) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'user', content: promptText },
+        {
+          role: 'assistant',
+          content: '🔒 **Free Guest Preview Limit Reached (3/3 queries used).**\n\nTo continue asking unlimited questions, generating full research papers, and running multi-agent AI pipelines, create your free RMinios account!',
+          provider: 'Access Guard',
+          isSignupPrompt: true
+        }
+      ]);
+      setInput('');
+      return;
+    }
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: promptText }]);
@@ -168,12 +217,32 @@ export default function SaraAssistant() {
       
       const data = await res.json();
       if (res.ok) {
+        let replyContent = data.reply;
+        let isLastGuestQuery = false;
+
+        // If guest, increment guest counter and append motivational signup teaser
+        if (!isAuthenticated) {
+          const nextCount = guestQueryCount + 1;
+          setGuestQueryCount(nextCount);
+          try {
+            localStorage.setItem('sara_guest_query_count', nextCount.toString());
+          } catch (e) {}
+
+          if (nextCount < MAX_GUEST_QUERIES) {
+            replyContent += `\n\n---\n*💡 Free Guest Preview: ${MAX_GUEST_QUERIES - nextCount} question${MAX_GUEST_QUERIES - nextCount === 1 ? '' : 's'} remaining. [Sign up free](/signup) to unlock unlimited autonomous research, full code synthesis, Swarm Arena, and 50+ AI engines!*`;
+          } else {
+            isLastGuestQuery = true;
+          }
+        }
+
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: data.reply,
+          content: replyContent,
           provider: data.providerUsed || 'RMinios Fleet',
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
+          isSignupPrompt: isLastGuestQuery
         }]);
+
         showNotification({
           title: 'Sara Copilot Synthesized',
           message: `Answer ready via ${data.providerUsed || 'RMinios Fleet'}`,
@@ -229,6 +298,8 @@ export default function SaraAssistant() {
     );
   }
 
+  const isGuestExhausted = !isAuthenticated && guestQueryCount >= MAX_GUEST_QUERIES;
+
   return (
     <div className={`sara-window ${isMinimized ? 'minimized' : ''}`}>
       {/* Header */}
@@ -242,7 +313,15 @@ export default function SaraAssistant() {
               <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 600, color: '#fff' }}>
                 Sara Copilot
               </h3>
-              <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 5px' }}>v3.0</span>
+              {isAuthenticated ? (
+                <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 6px', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.35)' }}>
+                  Full Access
+                </span>
+              ) : (
+                <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 6px', background: 'rgba(234, 179, 8, 0.2)', color: '#fbbf24', border: '1px solid rgba(234, 179, 8, 0.35)' }}>
+                  Guest ({guestQueryCount}/{MAX_GUEST_QUERIES})
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)' }}>
               <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} />
@@ -299,7 +378,7 @@ export default function SaraAssistant() {
                   key={i}
                   className="sara-quick-chip"
                   onClick={() => sendMessage(action.prompt)}
-                  disabled={loading}
+                  disabled={loading || isGuestExhausted}
                 >
                   {action.label}
                 </button>
@@ -345,6 +424,45 @@ export default function SaraAssistant() {
                       msg.content
                     )}
                   </div>
+
+                  {/* Motivational Signup Teaser Card for Guests */}
+                  {msg.isSignupPrompt && (
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(34, 197, 94, 0.16))',
+                      border: '1px solid rgba(99, 102, 241, 0.45)',
+                      borderRadius: 12,
+                      padding: '14px 16px',
+                      marginTop: 8,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.45)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <Rocket size={17} style={{ color: '#818cf8' }} />
+                        <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff' }}>
+                          Unlock Unlimited Sara Copilot & Research Engines
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 12px 0', lineHeight: 1.45 }}>
+                        Create your free RMinios account in 10 seconds to unlock unlimited questions, real-time arXiv paper synthesis, 4-agent Swarm Arena, in-browser Python experiments, and persistent research workspaces.
+                      </p>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <Link 
+                          href="/signup" 
+                          className="btn btn-primary btn-sm" 
+                          style={{ fontSize: '0.74rem', padding: '6px 14px', textDecoration: 'none', fontWeight: 600 }}
+                        >
+                          Create Free Account
+                        </Link>
+                        <Link 
+                          href="/login" 
+                          className="btn btn-secondary btn-sm" 
+                          style={{ fontSize: '0.74rem', padding: '6px 12px', textDecoration: 'none', background: 'rgba(255,255,255,0.08)' }}
+                        >
+                          Sign In
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+
                   {msg.role === 'assistant' && msg.provider && (
                     <div className="sara-message-meta">
                       <span className="sara-provider-dot" />
@@ -373,23 +491,38 @@ export default function SaraAssistant() {
 
           {/* Input Footer */}
           <div className="sara-footer">
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, width: '100%', alignItems: 'center' }}>
-              <input 
-                type="text" 
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                placeholder="Ask Sara anything (date, code, galaxy, sandbox)..."
-                className="sara-input"
-              />
-              <button 
-                type="submit" 
-                disabled={!input.trim() || loading} 
-                className="sara-submit-btn"
-                title="Send query"
-              >
-                <Send size={15} />
-              </button>
-            </form>
+            {isGuestExhausted ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 8, padding: '4px 0' }}>
+                <span style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.7)' }}>
+                  Guest limit reached. Sign up free to continue!
+                </span>
+                <Link href="/signup" className="btn btn-primary btn-sm" style={{ fontSize: '0.72rem', padding: '4px 12px', textDecoration: 'none' }}>
+                  Sign Up Free
+                </Link>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, width: '100%', alignItems: 'center' }}>
+                <input 
+                  type="text" 
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  placeholder={
+                    isAuthenticated 
+                      ? "Ask Sara anything (date, code, galaxy, sandbox)..." 
+                      : `Ask Sara (${MAX_GUEST_QUERIES - guestQueryCount} free questions left)...`
+                  }
+                  className="sara-input"
+                />
+                <button 
+                  type="submit" 
+                  disabled={!input.trim() || loading} 
+                  className="sara-submit-btn"
+                  title="Send query"
+                >
+                  <Send size={15} />
+                </button>
+              </form>
+            )}
           </div>
         </>
       )}

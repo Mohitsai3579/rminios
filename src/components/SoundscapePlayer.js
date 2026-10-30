@@ -211,6 +211,7 @@ const CONTINUOUS_STREAMS = [
 
 export default function SoundscapePlayer() {
   const {
+    user,
     isPlaying,
     activeMode: islandActiveMode,
     currentTrack,
@@ -227,6 +228,11 @@ export default function SoundscapePlayer() {
     setVolume,
     showNotification
   } = useDynamicIsland();
+
+  // CRITICAL REQUIREMENT: Deep Work Audio button & window ONLY work after login
+  if (!user) {
+    return null;
+  }
 
   const [activeTab, setActiveTab] = useState('spotify'); // 'spotify' | 'fullstream' | 'ambient' | 'pomodoro'
   const [selectedPlaylist, setSelectedPlaylist] = useState(SPOTIFY_PLAYLISTS[0]);

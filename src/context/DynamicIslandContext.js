@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 const DynamicIslandContext = createContext(null);
 
@@ -50,6 +51,13 @@ const DEFAULT_QUEUE = [
 ];
 
 export function DynamicIslandProvider({ children }) {
+  // Authentication & Dynamic Greeting State
+  const [user, setUser] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [isJustLoggedIn, setIsJustLoggedIn] = useState(false);
+  const hasGreetedRef = useRef(false);
+
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMode, setActiveMode] = useState('ambient'); // 'ambient' | 'spotify' | 'radio' | 'preview'
@@ -75,6 +83,66 @@ export function DynamicIslandProvider({ children }) {
   const osc1Ref = useRef(null);
   const osc2Ref = useRef(null);
   const notificationTimeoutRef = useRef(null);
+
+  // Real-time Supabase Auth Listener for Dynamic Island & Soundscape visibility
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Check initial session
+    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
+      setIsUserLoading(false);
+      if (currentUser) {
+        setUser(currentUser);
+        const name = currentUser.user_metadata?.full_name || 
+                     currentUser.user_metadata?.name || 
+                     (currentUser.email ? currentUser.email.split('@')[0] : 'Researcher');
+        setUserName(name);
+
+        const sessionGreeted = sessionStorage.getItem('rminios_greeted');
+        if (!sessionGreeted && !hasGreetedRef.current) {
+          hasGreetedRef.current = true;
+          sessionStorage.setItem('rminios_greeted', 'true');
+          setIsJustLoggedIn(true);
+          setTimeout(() => {
+            setIsJustLoggedIn(false);
+          }, 5000);
+        }
+      } else {
+        setUser(null);
+        setUserName('');
+      }
+    }).catch(() => {
+      setIsUserLoading(false);
+    });
+
+    // Listen to real-time SIGNED_IN / SIGNED_OUT events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        const name = session.user.user_metadata?.full_name || 
+                     session.user.user_metadata?.name || 
+                     (session.user.email ? session.user.email.split('@')[0] : 'Researcher');
+        setUserName(name);
+
+        if (event === 'SIGNED_IN') {
+          sessionStorage.setItem('rminios_greeted', 'true');
+          setIsJustLoggedIn(true);
+          setTimeout(() => {
+            setIsJustLoggedIn(false);
+          }, 5000);
+        }
+      } else {
+        setUser(null);
+        setUserName('');
+        setIsJustLoggedIn(false);
+        sessionStorage.removeItem('rminios_greeted');
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
 
   // Initialize Web Audio Context on first interaction
   const getAudioContext = useCallback(() => {
@@ -397,6 +465,11 @@ export function DynamicIslandProvider({ children }) {
   return (
     <DynamicIslandContext.Provider
       value={{
+        user,
+        userName,
+        isUserLoading,
+        isJustLoggedIn,
+        setIsJustLoggedIn,
         isPlaying,
         activeMode,
         currentTrack,

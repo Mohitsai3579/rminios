@@ -1,16 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Play, Pause, Headphones, Volume2, Sparkles, X, 
   Search, Sliders, Waves, Brain, CloudRain, Disc3, 
   ChevronDown, ExternalLink, CheckCircle2, Bell, Radio,
-  SkipForward, SkipBack
+  SkipForward, SkipBack, Compass, Bot, Code2, Globe2
 } from 'lucide-react';
 import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 export default function DynamicIsland() {
   const {
+    user,
+    userName,
+    isUserLoading,
+    isJustLoggedIn,
+    setIsJustLoggedIn,
     isPlaying,
     activeMode,
     currentTrack,
@@ -46,6 +52,11 @@ export default function DynamicIsland() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isIslandExpanded, setIsIslandExpanded]);
 
+  // CRITICAL REQUIREMENT: Dynamic Island ONLY visible after login
+  if (!user) {
+    return null;
+  }
+
   // If notification arrives, highlight the island
   const isNotificationMode = !!activeNotification;
 
@@ -56,8 +67,40 @@ export default function DynamicIsland() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 1. NOTIFICATION POPUP VIEW */}
-      {isNotificationMode ? (
+      {/* 0. DYNAMIC GREETING IMMEDIATELY AFTER LOGIN */}
+      {isJustLoggedIn ? (
+        <div 
+          className="dynamic-island-pill dynamic-island-greeting"
+          onClick={() => setIsJustLoggedIn(false)}
+          style={{ 
+            cursor: 'pointer', 
+            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(99, 102, 241, 0.28))',
+            border: '1px solid rgba(34, 197, 94, 0.45)'
+          }}
+          title="Click to switch to focus audio"
+        >
+          <div className="island-pill-left" style={{ gap: 10 }}>
+            <span style={{ fontSize: '1.25rem', animation: 'wave 1s ease-in-out infinite alternate', display: 'inline-block' }}>👋</span>
+            <div className="island-pill-text">
+              <span className="island-pill-title" style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.84rem' }}>
+                Hello, {userName || 'Researcher'}!
+              </span>
+              <span className="island-pill-sub" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.7rem' }}>
+                Welcome to RMinios OS • Research Mode Ready
+              </span>
+            </div>
+          </div>
+          <div className="island-pill-right" onClick={(e) => { e.stopPropagation(); setIsJustLoggedIn(false); }}>
+            <button 
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.1)', color: '#fff' }}
+            >
+              Focus Music
+            </button>
+          </div>
+        </div>
+      ) : isNotificationMode ? (
+        /* 1. NOTIFICATION POPUP VIEW */
         <div className="dynamic-island-notification">
           <div className="island-notification-left">
             <div className={`island-notif-icon ${activeNotification.type || 'info'}`}>
@@ -79,7 +122,7 @@ export default function DynamicIsland() {
           </button>
         </div>
       ) : isIslandExpanded ? (
-        /* 2. EXPANDED MEDIA & STUDIO VIEW */
+        /* 2. EXPANDED MEDIA & QUICK OS LAUNCH VIEW */
         <div className="dynamic-island-expanded-card">
           {/* Header row */}
           <div className="island-expanded-header">
@@ -163,6 +206,58 @@ export default function DynamicIsland() {
                   <Disc3 size={11} /> Spotify...
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Quick Platform Launch Hub to ease website navigation */}
+          <div style={{ 
+            margin: '8px 0', 
+            padding: '8px 10px', 
+            background: 'rgba(255,255,255,0.03)', 
+            borderRadius: 12, 
+            border: '1px solid rgba(255,255,255,0.06)' 
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: '0.64rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                Quick Platform Launch
+              </span>
+              <span style={{ fontSize: '0.65rem', color: '#22c55e', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
+                {userName || 'Researcher'}
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
+              {[
+                { label: 'Code Studio', href: '/dashboard/codestudio', icon: '💻' },
+                { label: '3D Galaxy', href: '/dashboard/galaxy', icon: '🌌' },
+                { label: 'Swarm Arena', href: '/dashboard/swarm', icon: '🤖' },
+                { label: 'Audio Paper', href: '/dashboard/podcast', icon: '🎙️' },
+                { label: 'Python Lab', href: '/dashboard/sandbox', icon: '🧪' },
+                { label: 'Dashboard', href: '/dashboard', icon: '📊' }
+              ].map(dest => (
+                <Link
+                  key={dest.href}
+                  href={dest.href}
+                  onClick={() => setIsIslandExpanded(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '5px 7px',
+                    borderRadius: 7,
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    color: '#fff',
+                    fontSize: '0.71rem',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span style={{ fontSize: '0.85rem' }}>{dest.icon}</span>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dest.label}</span>
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -257,6 +352,13 @@ export default function DynamicIsland() {
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        @keyframes wave {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(20deg); }
+        }
+      `}</style>
     </div>
   );
 }

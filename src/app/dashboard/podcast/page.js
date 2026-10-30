@@ -5,6 +5,7 @@ import {
   Radio, Play, Pause, SkipForward, SkipBack, Volume2, Sparkles, 
   Download, Mic, Headphones, User, Check, RefreshCw, Loader2
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const PRESET_EPISODES = [
   {
@@ -38,6 +39,7 @@ const PRESET_EPISODES = [
 ];
 
 export default function PodcastPage() {
+  const { showNotification } = useDynamicIsland();
   const [episodes, setEpisodes] = useState(PRESET_EPISODES);
   const [selectedEpisode, setSelectedEpisode] = useState(PRESET_EPISODES[0]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -137,6 +139,12 @@ export default function PodcastPage() {
         setSelectedEpisode(newEp);
         setCurrentLineIndex(0);
         setCustomTopic('');
+        showNotification({
+          title: 'Podcast Episode Synthesized',
+          message: `Episode ready: "${newEp.title.slice(0, 30)}" (Dr. Alex & Dr. Jordan)`,
+          icon: <Radio size={16} />,
+          type: 'purple'
+        });
       }
     } catch (err) {
       console.error(err);

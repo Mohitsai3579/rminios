@@ -1,10 +1,12 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+
+import { useState, useEffect } from 'react';
 import { 
   Headphones, Play, Pause, Volume2, Radio, Sparkles, Clock, 
   RotateCcw, X, ExternalLink, Music2, LogIn, CheckCircle2, 
-  ChevronDown, ChevronUp, AlertCircle, RefreshCw 
+  ChevronDown, ChevronUp, AlertCircle, RefreshCw, Search
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const SPOTIFY_PLAYLISTS = [
   { 
@@ -45,30 +47,36 @@ const SPOTIFY_PLAYLISTS = [
 ];
 
 export default function SoundscapePlayer() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeMode, setActiveMode] = useState('spotify'); // 'spotify' | 'ambient' | 'pomodoro'
+  const {
+    isPlaying,
+    activeMode: islandActiveMode,
+    currentTrack,
+    ambientType,
+    volume,
+    isSoundscapeModalOpen,
+    setIsSoundscapeModalOpen,
+    setIsSearchModalOpen,
+    playAmbient,
+    stopAllAudio,
+    togglePlay,
+    playTrack,
+    setVolume,
+    showNotification
+  } = useDynamicIsland();
+
+  const [activeTab, setActiveTab] = useState('spotify'); // 'spotify' | 'ambient' | 'pomodoro'
   const [selectedPlaylist, setSelectedPlaylist] = useState(SPOTIFY_PLAYLISTS[0]);
   const [customSpotifyUrl, setCustomSpotifyUrl] = useState('');
   const [urlStatus, setUrlStatus] = useState({ type: '', msg: '' });
-  const [playerHeight, setPlayerHeight] = useState('compact'); // 'compact' (152) | 'expanded' (352)
+  const [playerHeight, setPlayerHeight] = useState('compact');
   const [isSpotifyConnected, setIsSpotifyConnected] = useState(false);
-
-  // Web Audio Native Generator state
-  const [isPlayingAmbient, setIsPlayingAmbient] = useState(false);
-  const [ambientType, setAmbientType] = useState('rain'); // 'rain' | 'binaural' | 'waves' | 'whitenoise'
-  const [ambientVolume, setAmbientVolume] = useState(0.4);
-  const audioCtxRef = useRef(null);
-  const gainNodeRef = useRef(null);
-  const noiseSourceRef = useRef(null);
-  const osc1Ref = useRef(null);
-  const osc2Ref = useRef(null);
 
   // Pomodoro timer state
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
 
-  // Load Spotify login state from localStorage
+  // Check Spotify login state from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem('spotify_connected');
@@ -88,159 +96,16 @@ export default function SoundscapePlayer() {
     } else if (timeLeft === 0) {
       setTimerRunning(false);
       setSessionsCompleted(prev => prev + 1);
-      playBeep();
+      showNotification({
+        title: 'Pomodoro Sprint Complete! 🎉',
+        message: 'Great focus! Take a 5-minute cognitive reset.',
+        icon: <Clock size={16} />,
+        type: 'success'
+      });
       setTimeLeft(25 * 60);
     }
     return () => clearInterval(interval);
-  }, [timerRunning, timeLeft]);
-
-  const playBeep = () => {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 1.2);
-    } catch (e) {}
-  };
-
-  const stopAmbient = () => {
-    if (noiseSourceRef.current) {
-      try { noiseSourceRef.current.stop(); } catch (e) {}
-      noiseSourceRef.current = null;
-    }
-    if (osc1Ref.current) {
-      try { osc1Ref.current.stop(); } catch (e) {}
-      osc1Ref.current = null;
-    }
-    if (osc2Ref.current) {
-      try { osc2Ref.current.stop(); } catch (e) {}
-      osc2Ref.current = null;
-    }
-    setIsPlayingAmbient(false);
-  };
-
-  const startAmbient = (type = ambientType) => {
-    stopAmbient();
-
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const ctx = audioCtxRef.current;
-      if (ctx.state === 'suspended') ctx.resume();
-
-      const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(ambientVolume, ctx.currentTime);
-      masterGain.connect(ctx.destination);
-      gainNodeRef.current = masterGain;
-
-      if (type === 'rain' || type === 'whitenoise') {
-        const bufferSize = ctx.sampleRate * 2;
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-        for (let i = 0; i < bufferSize; i++) {
-          const white = Math.random() * 2 - 1;
-          if (type === 'rain') {
-            b0 = 0.99886 * b0 + white * 0.0555179;
-            b1 = 0.99332 * b1 + white * 0.0750759;
-            b2 = 0.96900 * b2 + white * 0.1538520;
-            b3 = 0.86650 * b3 + white * 0.3104856;
-            b4 = 0.55000 * b4 + white * 0.5329522;
-            b5 = -0.7616 * b5 - white * 0.0168980;
-            output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
-            b6 = white * 0.115926;
-          } else {
-            output[i] = white * 0.05;
-          }
-        }
-
-        const whiteNoise = ctx.createBufferSource();
-        whiteNoise.buffer = noiseBuffer;
-        whiteNoise.loop = true;
-
-        if (type === 'rain') {
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.value = 850;
-          whiteNoise.connect(filter);
-          filter.connect(masterGain);
-        } else {
-          whiteNoise.connect(masterGain);
-        }
-
-        whiteNoise.start();
-        noiseSourceRef.current = whiteNoise;
-
-      } else if (type === 'binaural') {
-        const oscLeft = ctx.createOscillator();
-        const oscRight = ctx.createOscillator();
-        const merger = ctx.createChannelMerger(2);
-
-        oscLeft.frequency.value = 200; // Base carrier 200Hz
-        oscRight.frequency.value = 240; // 40Hz Gamma focus delta
-
-        oscLeft.connect(merger, 0, 0);
-        oscRight.connect(merger, 0, 1);
-        merger.connect(masterGain);
-
-        oscLeft.start();
-        oscRight.start();
-        osc1Ref.current = oscLeft;
-        osc2Ref.current = oscRight;
-
-      } else if (type === 'waves') {
-        const bufferSize = ctx.sampleRate * 3;
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = (Math.random() * 2 - 1) * 0.1;
-        }
-
-        const noise = ctx.createBufferSource();
-        noise.buffer = noiseBuffer;
-        noise.loop = true;
-
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.value = 400;
-        filter.Q.value = 1.2;
-
-        const lfo = ctx.createOscillator();
-        lfo.frequency.value = 0.12; // slow ocean swell
-        const lfoGain = ctx.createGain();
-        lfoGain.gain.value = 300;
-
-        lfo.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-
-        noise.connect(filter);
-        filter.connect(masterGain);
-
-        noise.start();
-        lfo.start();
-        noiseSourceRef.current = noise;
-        osc1Ref.current = lfo;
-      }
-
-      setIsPlayingAmbient(true);
-    } catch (err) {
-      console.warn('Web Audio error:', err);
-    }
-  };
-
-  useEffect(() => {
-    if (gainNodeRef.current && audioCtxRef.current) {
-      gainNodeRef.current.gain.setValueAtTime(ambientVolume, audioCtxRef.current.currentTime);
-    }
-  }, [ambientVolume]);
+  }, [timerRunning, timeLeft, showNotification]);
 
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
@@ -258,16 +123,23 @@ export default function SoundscapePlayer() {
     
     window.open(
       loginUrl,
-      'SpotifyLoginPopup',
+      'SpotifyLogin',
       `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`
     );
+
     setIsSpotifyConnected(true);
     try {
       localStorage.setItem('spotify_connected', 'true');
     } catch (e) {}
+
+    showNotification({
+      title: 'Spotify Session Connected',
+      message: 'Unlimited in-browser music playback active.',
+      icon: <CheckCircle2 size={16} />,
+      type: 'success'
+    });
   };
 
-  // Open active playlist in native app or open.spotify.com
   const handleOpenInSpotify = () => {
     let target = `https://open.spotify.com/playlist/${selectedPlaylist.id}`;
     if (selectedPlaylist.rawUrl) {
@@ -278,55 +150,62 @@ export default function SoundscapePlayer() {
     window.open(target, '_blank', 'noopener,noreferrer');
   };
 
-  // Smart parser for Spotify URLs and URIs
   const handleCustomSpotify = (e) => {
     e.preventDefault();
     if (!customSpotifyUrl.trim()) return;
     const str = customSpotifyUrl.trim();
 
-    // Check Spotify URI format: spotify:track:id or spotify:playlist:id
     const uriMatch = str.match(/spotify:(playlist|track|album|artist|episode):([a-zA-Z0-9]+)/i);
-    if (uriMatch) {
-      const type = uriMatch[1].toLowerCase();
-      const id = uriMatch[2];
-      setSelectedPlaylist({
-        name: `Custom ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-        id,
-        type,
-        rawUrl: `https://open.spotify.com/${type}/${id}`,
-        uri: `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`,
-        desc: `Loaded via URI (${id})`
-      });
-      setUrlStatus({ type: 'success', msg: `Successfully loaded custom ${type}!` });
-      return;
-    }
-
-    // Check Spotify Web URL: https://open.spotify.com/(intl-xx/)?(playlist|track|album)/id
     const urlMatch = str.match(/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(playlist|track|album|artist|episode)\/([a-zA-Z0-9]+)/i);
-    if (urlMatch) {
-      const type = urlMatch[1].toLowerCase();
-      const id = urlMatch[2];
-      setSelectedPlaylist({
+
+    if (uriMatch || urlMatch) {
+      const type = (uriMatch ? uriMatch[1] : urlMatch[1]).toLowerCase();
+      const id = uriMatch ? uriMatch[2] : urlMatch[2];
+      const newPlaylist = {
         name: `Custom ${type.charAt(0).toUpperCase() + type.slice(1)}`,
         id,
         type,
         rawUrl: `https://open.spotify.com/${type}/${id}`,
         uri: `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`,
-        desc: `Loaded from Spotify web link`
+        desc: `Custom user-imported ${type}`
+      };
+      setSelectedPlaylist(newPlaylist);
+      setUrlStatus({ type: 'success', msg: `Loaded ${type} successfully!` });
+      playTrack({
+        id: `custom-${id}`,
+        title: `Spotify ${type.toUpperCase()}`,
+        artist: 'User Imported',
+        album: 'Custom Session',
+        albumArt: 'https://images.unsplash.com/photo-1614680376593-902f749f7ffc?w=300',
+        spotifyUri: newPlaylist.uri,
+        type: 'spotify'
       });
-      setUrlStatus({ type: 'success', msg: `Successfully loaded custom ${type}!` });
       return;
     }
 
-    setUrlStatus({ type: 'error', msg: 'Invalid link. Please paste a Spotify playlist, track, or album URL.' });
+    setUrlStatus({ type: 'error', msg: 'Invalid link. Please paste a valid Spotify playlist, track, or album URL.' });
+  };
+
+  const handleSelectPresetPlaylist = (p) => {
+    setSelectedPlaylist(p);
+    setUrlStatus({ type: '', msg: '' });
+    playTrack({
+      id: `spotify-${p.id}`,
+      title: p.name,
+      artist: 'Spotify Curation',
+      album: p.desc,
+      albumArt: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+      spotifyUri: p.uri,
+      type: 'spotify'
+    });
   };
 
   return (
     <>
-      {/* Floating Focus & Music Dock Button (Separated cleanly from Sara AI Assistant) */}
+      {/* Floating Focus Dock Button at bottom-right */}
       <div className="soundscape-trigger-dock">
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsSoundscapeModalOpen(!isSoundscapeModalOpen)}
           className="btn"
           style={{
             borderRadius: '50px',
@@ -346,7 +225,7 @@ export default function SoundscapePlayer() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <Headphones size={17} style={{ color: '#1ed760' }} />
-            {isPlayingAmbient && (
+            {isPlaying && (
               <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
                 <span className="sound-bar" style={{ height: 10, width: 2, background: '#1ed760', animation: 'soundPulse 0.8s infinite ease-in-out' }} />
                 <span className="sound-bar" style={{ height: 14, width: 2, background: '#1ed760', animation: 'soundPulse 0.6s infinite ease-in-out' }} />
@@ -366,7 +245,7 @@ export default function SoundscapePlayer() {
       </div>
 
       {/* Floating Soundscape & Spotify Glass Panel */}
-      {isOpen && (
+      {isSoundscapeModalOpen && (
         <div className="soundscape-panel-dock">
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'linear-gradient(135deg, rgba(30,215,96,0.08), rgba(99,102,241,0.05))' }}>
@@ -379,17 +258,28 @@ export default function SoundscapePlayer() {
                   Deep Work Audio Suite
                 </span>
                 <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                  Spotify & Generative Soundscapes
+                  Continuous Background Music & Synthesizer
                 </span>
               </div>
             </div>
-            <button 
-              onClick={() => setIsOpen(false)} 
-              className="btn btn-icon btn-ghost btn-sm" 
-              style={{ color: 'var(--text-muted)', width: 28, height: 28, padding: 0 }}
-            >
-              <X size={16} />
-            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button 
+                onClick={() => setIsSearchModalOpen(true)}
+                className="btn btn-sm btn-secondary"
+                style={{ fontSize: '0.72rem', padding: '3px 8px', gap: 4 }}
+                title="Search any song"
+              >
+                <Search size={12} /> Search All
+              </button>
+              <button 
+                onClick={() => setIsSoundscapeModalOpen(false)} 
+                className="btn btn-icon btn-ghost btn-sm" 
+                style={{ color: 'var(--text-muted)', width: 28, height: 28, padding: 0 }}
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Navigation Mode Pills */}
@@ -401,7 +291,7 @@ export default function SoundscapePlayer() {
             ].map(m => (
               <button
                 key={m.id}
-                onClick={() => setActiveMode(m.id)}
+                onClick={() => setActiveTab(m.id)}
                 style={{
                   flex: 1,
                   display: 'flex',
@@ -411,10 +301,10 @@ export default function SoundscapePlayer() {
                   padding: '7px 0',
                   borderRadius: 7,
                   fontSize: '0.76rem',
-                  fontWeight: activeMode === m.id ? 600 : 500,
-                  background: activeMode === m.id ? (m.id === 'spotify' ? 'rgba(30, 215, 96, 0.18)' : 'rgba(99, 102, 241, 0.25)') : 'transparent',
-                  color: activeMode === m.id ? (m.id === 'spotify' ? '#1ed760' : '#fff') : 'var(--text-muted)',
-                  border: activeMode === m.id ? (m.id === 'spotify' ? '1px solid rgba(30,215,96,0.35)' : '1px solid rgba(99,102,241,0.35)') : '1px solid transparent',
+                  fontWeight: activeTab === m.id ? 600 : 500,
+                  background: activeTab === m.id ? (m.id === 'spotify' ? 'rgba(30, 215, 96, 0.18)' : 'rgba(99, 102, 241, 0.25)') : 'transparent',
+                  color: activeTab === m.id ? (m.id === 'spotify' ? '#1ed760' : '#fff') : 'var(--text-muted)',
+                  border: activeTab === m.id ? (m.id === 'spotify' ? '1px solid rgba(30,215,96,0.35)' : '1px solid rgba(99,102,241,0.35)') : '1px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
@@ -427,8 +317,8 @@ export default function SoundscapePlayer() {
           {/* Body Content */}
           <div style={{ padding: '8px 14px 14px' }}>
 
-            {/* MODE 1: SPOTIFY EMBED WITH LOGIN & APP HANDOFF */}
-            {activeMode === 'spotify' && (
+            {/* TAB 1: SPOTIFY EMBED WITH LOGIN & APP HANDOFF */}
+            {activeTab === 'spotify' && (
               <div>
                 {/* Spotify Authentication & Connect Banner */}
                 <div style={{
@@ -500,7 +390,7 @@ export default function SoundscapePlayer() {
                       title="Open current playlist in Spotify App or Web Player"
                     >
                       <ExternalLink size={12} />
-                      Open App
+                      App
                     </button>
                   </div>
                 </div>
@@ -510,7 +400,7 @@ export default function SoundscapePlayer() {
                   {SPOTIFY_PLAYLISTS.map(p => (
                     <button
                       key={p.id}
-                      onClick={() => { setSelectedPlaylist(p); setUrlStatus({ type: '', msg: '' }); }}
+                      onClick={() => handleSelectPresetPlaylist(p)}
                       style={{
                         whiteSpace: 'nowrap',
                         fontSize: '0.7rem',
@@ -528,7 +418,7 @@ export default function SoundscapePlayer() {
                   ))}
                 </div>
 
-                {/* Spotify Iframe Player with Size Toggle */}
+                {/* Spotify Iframe Player */}
                 <div style={{ 
                   borderRadius: 12, 
                   overflow: 'hidden', 
@@ -605,8 +495,8 @@ export default function SoundscapePlayer() {
               </div>
             )}
 
-            {/* MODE 2: GENERATIVE AMBIENT / BINAURAL (Web Audio Native) */}
-            {activeMode === 'ambient' && (
+            {/* TAB 2: GENERATIVE AMBIENT / BINAURAL (Web Audio Native) */}
+            {activeTab === 'ambient' && (
               <div>
                 <p style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.3 }}>
                   Zero-login procedural sound synthesis running directly in Web Audio for instant cognitive immersion.
@@ -621,13 +511,13 @@ export default function SoundscapePlayer() {
                   ].map(a => (
                     <button
                       key={a.id}
-                      onClick={() => { setAmbientType(a.id); startAmbient(a.id); }}
+                      onClick={() => playAmbient(a.id)}
                       style={{
                         padding: '9px 11px',
                         borderRadius: 10,
                         textAlign: 'left',
-                        background: ambientType === a.id && isPlayingAmbient ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255,255,255,0.04)',
-                        border: ambientType === a.id && isPlayingAmbient ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.08)',
+                        background: ambientType === a.id && isPlaying ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255,255,255,0.04)',
+                        border: ambientType === a.id && isPlaying ? '1px solid var(--accent)' : '1px solid rgba(255,255,255,0.08)',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease'
                       }}
@@ -640,11 +530,11 @@ export default function SoundscapePlayer() {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: 'rgba(0,0,0,0.25)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
                   <button
-                    onClick={() => isPlayingAmbient ? stopAmbient() : startAmbient(ambientType)}
+                    onClick={() => isPlaying ? stopAllAudio() : playAmbient(ambientType)}
                     className="btn btn-primary btn-sm"
                     style={{ flex: 1, marginRight: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 32, fontSize: '0.75rem' }}
                   >
-                    {isPlayingAmbient ? <><Pause size={13} /> Stop Soundscape</> : <><Play size={13} /> Start {ambientType}</>}
+                    {isPlaying ? <><Pause size={13} /> Stop Soundscape</> : <><Play size={13} /> Start {ambientType}</>}
                   </button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Volume2 size={15} style={{ color: 'var(--text-muted)' }} />
@@ -653,8 +543,8 @@ export default function SoundscapePlayer() {
                       min="0"
                       max="1"
                       step="0.05"
-                      value={ambientVolume}
-                      onChange={e => setAmbientVolume(parseFloat(e.target.value))}
+                      value={volume}
+                      onChange={e => setVolume(parseFloat(e.target.value))}
                       style={{ width: 75, accentColor: 'var(--accent)' }}
                     />
                   </div>
@@ -662,8 +552,8 @@ export default function SoundscapePlayer() {
               </div>
             )}
 
-            {/* MODE 3: POMODORO DEEP WORK SPRINT TIMER */}
-            {activeMode === 'pomodoro' && (
+            {/* TAB 3: POMODORO DEEP WORK SPRINT TIMER */}
+            {activeTab === 'pomodoro' && (
               <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
                 <div style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: 2, fontFamily: 'monospace', color: '#fff', marginBottom: 6 }}>
                   {formatTime(timeLeft)}
@@ -699,10 +589,6 @@ export default function SoundscapePlayer() {
         @keyframes soundPulse {
           0%, 100% { transform: scaleY(0.4); }
           50% { transform: scaleY(1.2); }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>

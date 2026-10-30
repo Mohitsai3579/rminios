@@ -5,8 +5,10 @@ import {
   ShieldCheck, AlertTriangle, CheckCircle2, XCircle, Search, 
   ExternalLink, Sparkles, RefreshCw, Loader2, FileText, Check, ShieldAlert
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 export default function IntegrityPage() {
+  const { showNotification } = useDynamicIsland();
   const [textInput, setTextInput] = useState(`Recent advancements in self-attention mechanisms have demonstrated that transformers scale effectively with model capacity (Vaswani et al., 2017). Subsequent work on retrieval-augmented architectures by Lewis et al. (2020) demonstrated improved factual grounding on open-domain QA benchmarks. However, synthetic citations like (Henderson et al., 2024, Journal of Quantum Neural Dynamics, doi:10.9999/fake.1234) illustrate the pervasive risk of generative hallucination in academic writing.`);
   const [scanning, setScanning] = useState(false);
   const [report, setReport] = useState(null);
@@ -114,6 +116,12 @@ Return a structured JSON assessment with the following exact format:
           };
         }
         setReport(parsed);
+        showNotification({
+          title: 'Integrity Shield Audit Complete',
+          message: `Authenticity: ${parsed.authenticity_score}% | Hallucination Risk: ${parsed.hallucination_risk}`,
+          icon: <ShieldCheck size={16} />,
+          type: 'success'
+        });
       }
     } catch (err) {
       console.error(err);

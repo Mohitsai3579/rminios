@@ -7,6 +7,7 @@ import {
   CheckCircle2, ArrowRight, Loader2, Download, RefreshCw, FileText,
   TrendingUp, Shield, HelpCircle
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const GLOBAL_GRANTS = [
   {
@@ -72,6 +73,7 @@ const GLOBAL_GRANTS = [
 ];
 
 export default function GrantsPage() {
+  const { showNotification } = useDynamicIsland();
   const [workspaces, setWorkspaces] = useState([]);
   const [selectedWorkspace, setSelectedWorkspace] = useState('');
   const [selectedGrant, setSelectedGrant] = useState(GLOBAL_GRANTS[0]);
@@ -199,6 +201,12 @@ Generate a structured, professional grant proposal response in JSON format with 
           };
         }
         setProposal(parsed);
+        showNotification({
+          title: 'Grant Proposal Synthesized',
+          message: `${selectedGrant.agency} Package (${selectedGrant.amount})`,
+          icon: <Award size={16} />,
+          type: 'success'
+        });
       } else {
         setError('Failed to generate proposal. Please try again.');
       }

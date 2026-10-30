@@ -9,7 +9,6 @@ import {
   ShieldAlert, Code2, Bot, TrendingUp, Radio, FolderOpen, 
   Plus, Award, ShieldCheck, Globe2, Terminal, Headphones, Scale, Rocket
 } from 'lucide-react';
-import SoundscapePlayer from '@/components/SoundscapePlayer';
 
 export default function DashboardLayout({ children }) {
   const [user, setUser] = useState(null);
@@ -273,9 +272,6 @@ export default function DashboardLayout({ children }) {
       <main className={`main-content ${isWorkspace ? 'no-sidebar' : ''}`}>
         {children}
       </main>
-
-      {/* Ambient Soundscape & Spotify Focus Suite */}
-      {!isWorkspace && <SoundscapePlayer />}
     </div>
   );
 }

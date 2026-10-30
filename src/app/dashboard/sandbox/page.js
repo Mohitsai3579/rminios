@@ -5,6 +5,7 @@ import {
   Terminal, Play, RotateCcw, CheckCircle2, AlertTriangle, 
   Sparkles, Download, Copy, Cpu, Activity, Sliders, FileCode, Check
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const PRESET_EXPERIMENTS = [
   {
@@ -100,6 +101,7 @@ print("[+] Kinetic Equilibrium Replicated: At [S] = Km (1.84 mM), V = 0.5 * Vmax
 ];
 
 export default function SandboxPage() {
+  const { showNotification } = useDynamicIsland();
   const [selectedExperiment, setSelectedExperiment] = useState(PRESET_EXPERIMENTS[0]);
   const [code, setCode] = useState(PRESET_EXPERIMENTS[0].code);
   const [output, setOutput] = useState('');
@@ -180,6 +182,13 @@ Verdict: VERIFIED REPRODUCIBLE (Grade A+)
         memoryMb: '28.4 MB'
       });
       setRunning(false);
+
+      showNotification({
+        title: 'Reproducibility Verified',
+        message: `${selectedExperiment.paper} (Match: ${selectedExperiment.expectedMatch})`,
+        icon: <CheckCircle2 size={16} />,
+        type: 'success'
+      });
     }, 700);
   };
 

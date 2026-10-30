@@ -17,7 +17,6 @@ import IntegrityTab from './IntegrityTab';
 import InnovationTab from './InnovationTab';
 import CanvasTab from './CanvasTab';
 import SwarmTab from './SwarmTab';
-import SoundscapePlayer from '@/components/SoundscapePlayer';
 
 export default function WorkspaceDetailPage() {
   const { id } = useParams();
@@ -140,9 +139,6 @@ export default function WorkspaceDetailPage() {
           {activeTab === 'innovation' && <InnovationTab workspaceId={id} />}
         </div>
       </div>
-
-      {/* Floating Deep Work Soundscape & Spotify Focus Player */}
-      <SoundscapePlayer />
     </div>
   );
 }

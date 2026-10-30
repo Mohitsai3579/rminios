@@ -1,8 +1,13 @@
 import './globals.css';
 import './sara.css';
+import './dynamic-island.css';
 import SaraAssistant from '@/components/SaraAssistant';
+import DynamicIsland from '@/components/DynamicIsland';
+import SoundscapePlayer from '@/components/SoundscapePlayer';
+import SpotifySearchModal from '@/components/SpotifySearchModal';
+import { DynamicIslandProvider } from '@/context/DynamicIslandContext';
 import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
 export const metadata = {
   title: 'RMinios — AI Research Operating System',
   description: 'Learn, research, brainstorm, write papers, and publish — all from one intelligent workspace powered by AI.',
@@ -72,8 +77,13 @@ export default function RootLayout({ children }) {
         }} />
       </head>
       <body suppressHydrationWarning>
-        {children}
-        <SaraAssistant />
+        <DynamicIslandProvider>
+          <DynamicIsland />
+          {children}
+          <SoundscapePlayer />
+          <SaraAssistant />
+          <SpotifySearchModal />
+        </DynamicIslandProvider>
         <Analytics />
         <SpeedInsights />
       </body>

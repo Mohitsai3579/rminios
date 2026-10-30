@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { createClient } from '@/lib/supabase/client';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const QUICK_ACTIONS = [
   { label: "📅 What is today's date & day?", prompt: "What is today's exact date, day of the week, and current time?" },
@@ -28,6 +29,7 @@ const PROVIDERS = [
 
 export default function SaraAssistant() {
   const supabase = createClient();
+  const { showNotification } = useDynamicIsland();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [userId, setUserId] = useState('visitor');
@@ -172,6 +174,12 @@ export default function SaraAssistant() {
           provider: data.providerUsed || 'RMinios Fleet',
           timestamp: data.timestamp
         }]);
+        showNotification({
+          title: 'Sara Copilot Synthesized',
+          message: `Answer ready via ${data.providerUsed || 'RMinios Fleet'}`,
+          icon: <Sparkles size={16} />,
+          type: 'purple'
+        });
       } else {
         setMessages(prev => [...prev, { 
           role: 'assistant', 

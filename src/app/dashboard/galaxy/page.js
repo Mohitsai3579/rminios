@@ -6,6 +6,7 @@ import {
   ZoomOut, RotateCcw, ExternalLink, Lightbulb, ArrowRight, BookOpen,
   Filter, Crosshair, Award
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const INITIAL_NODES = [
   // AI & ML Cluster
@@ -31,6 +32,7 @@ const INITIAL_NODES = [
 ];
 
 export default function GalaxyPage() {
+  const { showNotification } = useDynamicIsland();
   const [nodes, setNodes] = useState(INITIAL_NODES);
   const [selectedNode, setSelectedNode] = useState(INITIAL_NODES[0]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -273,6 +275,12 @@ export default function GalaxyPage() {
       setSelectedNode(newNode);
       setCustomIdea('');
       generateBridgeHypothesis(newNode);
+      showNotification({
+        title: 'Constellation Coordinate Mapped',
+        message: `Synthesized "${newNode.title.slice(0, 32)}" into 3D Galaxy`,
+        icon: <Sparkles size={16} />,
+        type: 'purple'
+      });
     } catch (err) {
       console.error(err);
     }

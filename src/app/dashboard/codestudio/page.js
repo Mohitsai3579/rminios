@@ -6,6 +6,7 @@ import {
   Folder, FileCode, CheckCircle2, RefreshCw, Eye, Layers, 
   Box, ExternalLink, ArrowRight, ShieldCheck, Cpu 
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const PRESET_CODING_PROJECTS = [
   {
@@ -35,6 +36,7 @@ const PRESET_CODING_PROJECTS = [
 ];
 
 export default function CodeStudioPage() {
+  const { showNotification } = useDynamicIsland();
   const [projectPrompt, setProjectPrompt] = useState('');
   const [techStack, setTechStack] = useState('FastAPI + PyTorch');
   const [architectureStyle, setArchitectureStyle] = useState('Modular Monolith');
@@ -68,6 +70,12 @@ export default function CodeStudioPage() {
 
       setGeneratedProject(data.agentResult);
       setSelectedFileIndex(0);
+      showNotification({
+        title: 'Coding Agent Project Ready',
+        message: `${data.agentResult?.projectName || 'Project Architecture'} synthesized`,
+        icon: <Code2 size={16} />,
+        type: 'purple'
+      });
     } catch (err) {
       alert(`Antigravity Agent Error: ${err.message}`);
     } finally {

@@ -5,6 +5,7 @@ import {
   Rocket, Sparkles, ChevronLeft, ChevronRight, Download, 
   TrendingUp, DollarSign, Target, Shield, Check, Loader2, Maximize2
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const PRESET_DECKS = [
   {
@@ -66,6 +67,7 @@ const PRESET_DECKS = [
 ];
 
 export default function VenturePage() {
+  const { showNotification } = useDynamicIsland();
   const [deck, setDeck] = useState(PRESET_DECKS[0]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [thesisInput, setThesisInput] = useState('');
@@ -138,6 +140,12 @@ export default function VenturePage() {
         setDeck(newDeck);
         setCurrentSlide(0);
         setThesisInput('');
+        showNotification({
+          title: 'VC Pitch Deck Synthesized',
+          message: `${newDeck.companyName} (${newDeck.ask}) ready for presentation`,
+          icon: <Rocket size={16} />,
+          type: 'success'
+        });
       }
     } catch (err) {
       console.error(err);

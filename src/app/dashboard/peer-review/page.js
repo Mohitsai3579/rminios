@@ -5,10 +5,12 @@ import {
   Users, Award, AlertCircle, CheckCircle2, XCircle, Sparkles, 
   Download, Loader2, Send, MessageSquare, Shield, Cpu, Scale
 } from 'lucide-react';
+import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
 const TARGET_VENUES = ['NeurIPS 2027', 'ICLR 2027', 'ICML 2027', 'Nature Machine Intelligence', 'CVPR 2027'];
 
 export default function PeerReviewPage() {
+  const { showNotification } = useDynamicIsland();
   const [paperTitle, setPaperTitle] = useState('Scalable Sparse Attention with Dynamic Token Pruning for Edge Devices');
   const [paperAbstract, setPaperAbstract] = useState(`We propose a hardware-aware dynamic attention mechanism that reduces quadratic transformer memory footprint by dynamically pruning low-salience token keys during inference. On ImageNet-1k and Llama-3 8B, our method achieves a 3.4x latency reduction on Nvidia Jetson Orin edge hardware with less than 0.3% degradation in perplexity. Extensive ablations verify that gradient flow remains stable under aggressive pruning thresholds.`);
   const [targetVenue, setTargetVenue] = useState(TARGET_VENUES[0]);
@@ -124,6 +126,12 @@ Generate a comprehensive review in structured JSON format with the following exa
           };
         }
         setCommitteeReview(parsed);
+        showNotification({
+          title: `Peer Review Verdict: ${parsed.meta_decision}`,
+          message: `Committee Score: ${parsed.meta_score}/10 (${targetVenue})`,
+          icon: <Scale size={16} />,
+          type: 'success'
+        });
       }
     } catch (err) {
       console.error(err);

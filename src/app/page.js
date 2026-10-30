@@ -12,13 +12,24 @@ import {
   Radio, Cpu, Layers, Disc3, ExternalLink, RefreshCw, MessageSquare
 } from 'lucide-react';
 import './landing.css';
+import TiltCard3D from '@/components/TiltCard3D';
 
-// Lazy load 3D background canvas
-const HeroScene = dynamic(() => import('@/components/HeroScene'), { 
+// Lazy load 3D Interactive Hero Canvas
+const InteractiveHero3D = dynamic(() => import('@/components/InteractiveHero3D'), { 
   ssr: false,
   loading: () => (
-    <div className="canvas-container-3d flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+    <div style={{ width: '100%', height: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+});
+
+// Lazy load 3D Galaxy Canvas for Tab 1
+const InteractiveGalaxy3D = dynamic(() => import('@/components/InteractiveGalaxy3D'), { 
+  ssr: false,
+  loading: () => (
+    <div style={{ width: '100%', height: '440px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080911', borderRadius: 16 }}>
+      <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
     </div>
   )
 });
@@ -56,21 +67,6 @@ export default function LandingPage() {
       .catch(() => {});
   }, []);
 
-  // Global mouse tracking for bento glow effect
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      for (const card of document.querySelectorAll(".bento-item, .glass-panel")) {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty("--mouse-x", `${x}px`);
-        card.style.setProperty("--mouse-y", `${y}px`);
-      }
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   const handleRunPython = () => {
     if (isRunningPython) return;
     setIsRunningPython(true);
@@ -90,9 +86,6 @@ export default function LandingPage() {
 
   return (
     <div className="landing-container">
-      {/* 3D Celestial Background */}
-      <HeroScene />
-
       {/* Floating Frosted Navigation */}
       <nav className="landing-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -129,7 +122,7 @@ export default function LandingPage() {
       </nav>
 
       {/* =====================================================================
-          HERO SECTION
+          HERO SECTION WITH 3D QUANTUM NEURAL CORE
           ===================================================================== */}
       <section className="hero-section">
         <div className="hero-bg-glow" />
@@ -141,7 +134,7 @@ export default function LandingPage() {
             hidden: {},
             show: { transition: { staggerChildren: 0.12 } },
           }}
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10, width: '100%' }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10, width: '100%', maxWidth: 1200 }}
         >
           {/* Top Badge */}
           <motion.div variants={FADE_UP_VARIANTS} className="hero-badge-pill">
@@ -160,9 +153,24 @@ export default function LandingPage() {
             Orchestrate 4-agent LLM debate swarms, in-browser PyTorch experiment sandboxes, 3D citation constellations, and academic-to-venture synthesis at the speed of thought.
           </motion.p>
 
+          {/* ⭐ 3D INTERACTIVE HERO STAGE ⭐ */}
+          <motion.div 
+            variants={FADE_UP_VARIANTS}
+            style={{ 
+              width: '100%', 
+              height: '480px', 
+              position: 'relative', 
+              margin: '0 auto 24px',
+              borderRadius: 24,
+              overflow: 'hidden'
+            }}
+          >
+            <InteractiveHero3D />
+          </motion.div>
+
           {/* CTA Buttons */}
           <motion.div variants={FADE_UP_VARIANTS} className="hero-cta-group">
-            <Link href="/signup" className="premium-btn-primary" style={{ padding: '14px 30px', fontSize: '0.98rem' }}>
+            <Link href="/signup" className="premium-btn-primary" style={{ padding: '14px 32px', fontSize: '1rem' }}>
               Launch Research Hub (Free) <ArrowRight size={18} />
             </Link>
             <a href="#engines" className="premium-btn" style={{ padding: '14px 26px', fontSize: '0.94rem' }}>
@@ -217,7 +225,7 @@ export default function LandingPage() {
               onClick={() => setActiveEngineTab('galaxy')}
             >
               <Compass size={16} /> 3D Citation Galaxy
-              <span className="playground-tab-badge">WebGL</span>
+              <span className="playground-tab-badge">WebGL 3D</span>
             </button>
             <button 
               className={`playground-tab-btn ${activeEngineTab === 'python' ? 'active' : ''}`}
@@ -259,7 +267,7 @@ export default function LandingPage() {
           {/* Tab Viewport */}
           <div className="playground-viewport">
             <AnimatePresence mode="wait">
-              {/* TAB 1: 3D GALAXY SIMULATION */}
+              {/* TAB 1: REAL 3D WEBGL GALAXY CANVAS */}
               {activeEngineTab === 'galaxy' && (
                 <motion.div 
                   key="galaxy"
@@ -267,112 +275,96 @@ export default function LandingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.3 }}
-                  className="galaxy-sim-canvas"
+                  style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 20 }}>
-                    <div style={{ background: 'rgba(0,0,0,0.6)', padding: '8px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#a5b4fc', fontWeight: 600 }}>INTERACTION MODE:</span>
-                      <div style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 700 }}>Click any landmark paper to pinpoint undiscovered research white spaces</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span className="status-dot-pulse" />
+                      <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 700 }}>
+                        3D WebGL Constellation: Drag to Orbit in 3D • Click any node to analyze citation gaps
+                      </span>
                     </div>
                     <Link href="/dashboard/galaxy" className="premium-btn" style={{ padding: '6px 14px', fontSize: '0.78rem' }}>
-                      Launch 3D WebGL Canvas <ExternalLink size={13} />
+                      Launch Full Galaxy <ExternalLink size={13} />
                     </Link>
                   </div>
 
-                  {/* Interactive Galaxy Nodes */}
-                  <div 
-                    className={`galaxy-node ${selectedGalaxyNode === 'transformers' ? 'selected' : ''}`}
-                    style={{ top: '35%', left: '15%' }}
-                    onClick={() => setSelectedGalaxyNode('transformers')}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366f1' }} />
-                    Attention Is All You Need (Vaswani et al.)
-                  </div>
-
-                  <div 
-                    className={`galaxy-node ${selectedGalaxyNode === 'ddpm' ? 'selected' : ''}`}
-                    style={{ top: '22%', right: '22%' }}
-                    onClick={() => setSelectedGalaxyNode('ddpm')}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f43f5e' }} />
-                    Denoising Diffusion Probabilistic Models (Ho et al.)
-                  </div>
-
-                  <div 
-                    className={`galaxy-node ${selectedGalaxyNode === 'lora' ? 'selected' : ''}`}
-                    style={{ bottom: '30%', left: '26%' }}
-                    onClick={() => setSelectedGalaxyNode('lora')}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-                    LoRA: Low-Rank Adaptation (Hu et al.)
-                  </div>
-
-                  <div 
-                    className={`galaxy-node ${selectedGalaxyNode === 'mamba' ? 'selected' : ''}`}
-                    style={{ bottom: '25%', right: '18%' }}
-                    onClick={() => setSelectedGalaxyNode('mamba')}
-                  >
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#38bdf8' }} />
-                    Mamba: Linear-Time Sequence Modeling (Gu et al.)
-                  </div>
+                  {/* Real 3D WebGL Canvas */}
+                  <InteractiveGalaxy3D 
+                    selectedNode={selectedGalaxyNode} 
+                    onSelectNode={setSelectedGalaxyNode} 
+                  />
 
                   {/* Dynamic White Space Output Card */}
-                  <div className="galaxy-whitespace-card">
+                  <div className="galaxy-whitespace-card" style={{ maxWidth: '100%' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
                       <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#4ade80' }}>
-                        UNEXPLORED RESEARCH GAP DETECTED
+                        UNEXPLORED RESEARCH GAP DETECTED IN 3D GRAPH
                       </span>
                     </div>
                     {selectedGalaxyNode === 'transformers' && (
                       <div>
-                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.92rem', color: '#fff', fontWeight: 700 }}>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.94rem', color: '#fff', fontWeight: 700 }}>
                           Sub-Quadratic Cross-Attention for High-Throughput Spatial Genomics
                         </h4>
-                        <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           While Vaswani et al. solves token routing in O(N²), billion-scale genomic cell reads suffer extreme memory blowup. Vector proximity reveals an unbridged gap between LoRA rank decomposition and sparse FlashAttention.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 10, fontSize: '0.72rem', color: '#38bdf8' }}>
-                          <span>Discovery Potential: 98.4%</span> • <span>Estimated Citations: 450+</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#38bdf8' }}>
+                          <span>Discovery Potential: 98.4%</span> • <span>Estimated Citations: 450+</span> • <span>Target Venue: Nature Biotechnology</span>
                         </div>
                       </div>
                     )}
                     {selectedGalaxyNode === 'ddpm' && (
                       <div>
-                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.92rem', color: '#fff', fontWeight: 700 }}>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.94rem', color: '#fff', fontWeight: 700 }}>
                           Deterministic Hamiltonian Flow Matching for Crystal Lattice Synthesis
                         </h4>
-                        <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           DDPM Langevin sampling requires 1,000 steps. Bridging this node with Riemannian geometry yields continuous 1-step generative trajectory for inorganic superconductors.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 10, fontSize: '0.72rem', color: '#f43f5e' }}>
-                          <span>Discovery Potential: 96.8%</span> • <span>Target Venue: Nature Materials</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#f43f5e' }}>
+                          <span>Discovery Potential: 96.8%</span> • <span>Target Venue: Nature Materials</span> • <span>Feasibility: 92%</span>
                         </div>
                       </div>
                     )}
                     {selectedGalaxyNode === 'lora' && (
                       <div>
-                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.92rem', color: '#fff', fontWeight: 700 }}>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.94rem', color: '#fff', fontWeight: 700 }}>
                           Dynamic Orthogonal Rank Allocation with Continual Forgetting Bounds
                         </h4>
-                        <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           Current parameter-efficient fine-tuning fixes rank r uniformly across layers. Adaptive singular value truncation yields 4.2x parameter reduction on 70B models.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 10, fontSize: '0.72rem', color: '#4ade80' }}>
-                          <span>Discovery Potential: 99.1%</span> • <span>Target Venue: ICML Oral</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#4ade80' }}>
+                          <span>Discovery Potential: 99.1%</span> • <span>Target Venue: ICML Oral</span> • <span>Empirical Gain: +4.2x</span>
                         </div>
                       </div>
                     )}
                     {selectedGalaxyNode === 'mamba' && (
                       <div>
-                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.92rem', color: '#fff', fontWeight: 700 }}>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.94rem', color: '#fff', fontWeight: 700 }}>
                           Bidirectional State-Space Selective Scans with KV-Free Context
                         </h4>
-                        <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           SSMs eliminate the KV cache but struggle with in-context associative recall. A hybrid state router guarantees 10M token processing on consumer hardware.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 10, fontSize: '0.72rem', color: '#38bdf8' }}>
-                          <span>Discovery Potential: 97.5%</span> • <span>Target Venue: NeurIPS Spotlight</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#38bdf8' }}>
+                          <span>Discovery Potential: 97.5%</span> • <span>Target Venue: NeurIPS Spotlight</span> • <span>Memory Bound: O(1)</span>
+                        </div>
+                      </div>
+                    )}
+                    {(selectedGalaxyNode === 'deepseek' || selectedGalaxyNode === 'alphafold' || selectedGalaxyNode === 'whitespace') && (
+                      <div>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.94rem', color: '#4ade80', fontWeight: 700 }}>
+                          Latent Biomolecular Flow Matching with Sub-Quadratic Manifold Projections
+                        </h4>
+                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                          Combining DeepSeek latent compression with AlphaFold structural predictions unlocks real-time de novo therapeutic antibody design in under 3 seconds.
+                        </p>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#4ade80' }}>
+                          <span>Synthesis Confidence: 99.4%</span> • <span>Commercial Valuation: $120M+</span> • <span>Patent Readiness: HIGH</span>
                         </div>
                       </div>
                     )}
@@ -700,7 +692,7 @@ export default function LandingPage() {
       </section>
 
       {/* =====================================================================
-          FRONTIER MULTI-LLM FLEET SECTION
+          FRONTIER MULTI-LLM FLEET SECTION (WITH 3D TILT CARDS)
           ===================================================================== */}
       <section id="fleet" className="section-premium" style={{ background: '#05070d' }}>
         <h2 className="section-title">The Frontier Multi-LLM Fleet.</h2>
@@ -710,7 +702,7 @@ export default function LandingPage() {
 
         <div className="fleet-grid">
           {/* Card 1: Google Gemini */}
-          <div className="fleet-card">
+          <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#6366f1' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -729,10 +721,10 @@ export default function LandingPage() {
               <span>Latency: <strong>&lt; 450ms</strong></span>
               <span>Reasoning: <strong>94.2%</strong></span>
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Card 2: OpenAI GPT-4o */}
-          <div className="fleet-card">
+          <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#10b981' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -751,10 +743,10 @@ export default function LandingPage() {
               <span>Latency: <strong>&lt; 620ms</strong></span>
               <span>Code Gen: <strong>96.8%</strong></span>
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Card 3: Anthropic Claude 3.5 */}
-          <div className="fleet-card">
+          <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#f59e0b' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -773,10 +765,10 @@ export default function LandingPage() {
               <span>Latency: <strong>&lt; 580ms</strong></span>
               <span>Academic Tone: <strong>98.5%</strong></span>
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Card 4: xAI Grok 2 */}
-          <div className="fleet-card">
+          <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#ef4444' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -795,12 +787,12 @@ export default function LandingPage() {
               <span>Latency: <strong>&lt; 510ms</strong></span>
               <span>Stress-Test: <strong>97.1%</strong></span>
             </div>
-          </div>
+          </TiltCard3D>
         </div>
       </section>
 
       {/* =====================================================================
-          DEEP INNOVATION BENTO GRID
+          DEEP INNOVATION BENTO GRID (WITH 3D TILT)
           ===================================================================== */}
       <section id="innovations" className="section-premium" style={{ background: '#000000' }}>
         <h2 className="section-title">Everything interconnected.</h2>
@@ -810,7 +802,7 @@ export default function LandingPage() {
 
         <div className="bento-grid">
           {/* Card 1: Scientific Integrity Shield */}
-          <div className="glass-panel bento-item" style={{ gridColumn: 'span 7' }}>
+          <TiltCard3D className="glass-panel bento-item" style={{ gridColumn: 'span 7' }}>
             <div className="feature-icon-premium" style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))', borderColor: 'rgba(34,197,94,0.3)' }}>
               <ShieldCheck size={24} style={{ color: '#4ade80' }} />
             </div>
@@ -826,10 +818,10 @@ export default function LandingPage() {
                 ✓ Conflict of Interest Audit
               </span>
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Card 2: Deep Work Soundscape & Dynamic Island */}
-          <div className="glass-panel bento-item" style={{ gridColumn: 'span 5' }}>
+          <TiltCard3D className="glass-panel bento-item" style={{ gridColumn: 'span 5' }}>
             <div className="feature-icon-premium" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05))', borderColor: 'rgba(168,85,247,0.3)' }}>
               <Headphones size={24} style={{ color: '#c084fc' }} />
             </div>
@@ -842,10 +834,10 @@ export default function LandingPage() {
                 ✓ Continuous Spotify Search & Queue
               </span>
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Card 3: Autonomous Grant Intelligence */}
-          <div className="glass-panel bento-item" style={{ gridColumn: 'span 4' }}>
+          <TiltCard3D className="glass-panel bento-item" style={{ gridColumn: 'span 4' }}>
             <div className="feature-icon-premium" style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.05))', borderColor: 'rgba(56,189,248,0.3)' }}>
               <Target size={24} style={{ color: '#38bdf8' }} />
             </div>
@@ -853,10 +845,10 @@ export default function LandingPage() {
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, fontSize: '0.92rem' }}>
               AI cross-matches your proposal against active funding calls from NSF, NIH, DARPA, and Horizon Europe, synthesizing tailored milestone roadmaps.
             </p>
-          </div>
+          </TiltCard3D>
 
           {/* Card 4: Global Pre-Print Literature Radar */}
-          <div className="glass-panel bento-item" style={{ gridColumn: 'span 4' }}>
+          <TiltCard3D className="glass-panel bento-item" style={{ gridColumn: 'span 4' }}>
             <div className="feature-icon-premium" style={{ background: 'linear-gradient(135deg, rgba(234,179,8,0.2), rgba(234,179,8,0.05))', borderColor: 'rgba(234,179,8,0.3)' }}>
               <Radio size={24} style={{ color: '#facc15' }} />
             </div>
@@ -864,10 +856,10 @@ export default function LandingPage() {
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, fontSize: '0.92rem' }}>
               Streaming live arXiv and bioRxiv pre-prints with automated citation trend analysis, algorithmic clustering, and daily scientific briefings.
             </p>
-          </div>
+          </TiltCard3D>
 
           {/* Card 5: Antigravity Code Studio */}
-          <div className="glass-panel bento-item" style={{ gridColumn: 'span 4' }}>
+          <TiltCard3D className="glass-panel bento-item" style={{ gridColumn: 'span 4' }}>
             <div className="feature-icon-premium" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(99,102,241,0.05))', borderColor: 'rgba(99,102,241,0.3)' }}>
               <Terminal size={24} style={{ color: '#818cf8' }} />
             </div>
@@ -875,7 +867,7 @@ export default function LandingPage() {
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, fontSize: '0.92rem' }}>
               Autonomous software developer agent creating multi-file PyTorch models, data loaders, automated testing harnesses, and synthetic training loops.
             </p>
-          </div>
+          </TiltCard3D>
         </div>
       </section>
 

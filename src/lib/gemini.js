@@ -21,9 +21,9 @@ const getAdminSupabase = () => {
 
 // Fallback chain for general text generation (prioritizing active & high-capacity models)
 const FALLBACK_MODELS = [
+  'gemini-2.5-flash',
   'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
-  'gemini-2.5-flash',
 ];
 
 // Active embedding model (gemini-embedding-001 replaces deprecated text-embedding-004)
@@ -33,21 +33,26 @@ export const embeddingModel = genAI.getGenerativeModel({
 
 // Helper to fetch active model and log usage
 async function getActiveModelAndLogUsage() {
-  let activeModel = 'gemini-3.5-flash';
+  let activeModel = 'gemini-2.5-flash';
   try {
     const supabase = getAdminSupabase();
     if (!supabase) return activeModel;
-    const { data } = await supabase.from('site_settings').select('gemini_model').eq('id', 'global').single();
+
+    // Fast timeout lookup so DB never delays AI generation
+    const fetchPromise = supabase.from('site_settings').select('gemini_model').eq('id', 'global').single();
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+    
+    const { data } = await Promise.race([fetchPromise, timeoutPromise]);
     // Ignore obsolete/deprecated models that now return 404
-    const obsoleteModels = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
+    const obsoleteModels = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-exp', 'gemini-pro'];
     if (data?.gemini_model && !obsoleteModels.includes(data.gemini_model)) {
       activeModel = data.gemini_model;
     }
     
-    // Log the usage
-    await supabase.from('api_usage').insert({ model: activeModel, tokens: 0 });
+    // Log usage asynchronously (non-blocking)
+    supabase.from('api_usage').insert({ model: activeModel, tokens: 0 }).catch(() => {});
   } catch (err) {
-    console.warn('Gemini Admin check failed (using fallback model):', err.message);
+    // Non-fatal, use verified default
   }
   return activeModel;
 }

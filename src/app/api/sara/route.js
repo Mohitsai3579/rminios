@@ -3,6 +3,9 @@ import { callFleetAgent } from '@/lib/llm-fleet';
 import { aiRateLimiter } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const { 
@@ -21,41 +24,42 @@ export async function POST(request) {
       return NextResponse.json({ reply: 'Please provide a valid prompt or question.' }, { status: 400 });
     }
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let user = null;
+    let userRole = 'visitor';
+    let ownerName = 'Mohit Jonnadula';
+    let supportEmail = 'mohitjonnadula16@gmail.com';
+    let supportPhone = '9494366318';
+
+    // Safely check user auth session without throwing on guests or network blips
+    try {
+      const supabase = await createClient();
+      if (supabase) {
+        const { data: authData } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+        user = authData?.user || null;
+
+        if (user) {
+          userRole = 'user';
+          const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single().catch(() => ({ data: null }));
+          if (profile?.role) userRole = profile.role;
+        }
+
+        // Fast site_settings lookup with non-fatal catch
+        const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 'global').single().catch(() => ({ data: null }));
+        if (settings) {
+          ownerName = settings.owner_name || ownerName;
+          supportEmail = settings.support_email || supportEmail;
+          supportPhone = settings.support_phone || supportPhone;
+        }
+      }
+    } catch (authErr) {
+      console.warn('Sara API: Guest mode active (auth check skipped):', authErr.message);
+    }
 
     if (user && !aiRateLimiter.check(user.id)) {
       return NextResponse.json({ 
         reply: '⚠️ Rate limit exceeded. Please wait a minute before requesting again.',
         providerUsed: 'Rate Limiter'
       }, { status: 429 });
-    }
-
-    let userRole = 'visitor';
-    let ownerName = 'Mohit Jonnadula';
-    let supportEmail = 'mohitjonnadula16@gmail.com';
-    let supportPhone = '9494366318';
-
-    // Fetch site settings from database
-    try {
-      const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 'global').single();
-      if (settings) {
-        ownerName = settings.owner_name || ownerName;
-        supportEmail = settings.support_email || supportEmail;
-        supportPhone = settings.support_phone || supportPhone;
-      }
-    } catch (e) {
-      console.warn('Could not fetch site_settings in Sara API:', e.message);
-    }
-
-    if (user) {
-      userRole = 'user';
-      try {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-        if (profile?.role) userRole = profile.role;
-      } catch (e) {
-        console.warn('Could not fetch profile in Sara API:', e.message);
-      }
     }
 
     // Resolve real-time temporal anchor (Exact Date, Day of Week, Time, Timezone)

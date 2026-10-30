@@ -28,7 +28,7 @@ export async function getFleetConfig() {
 
   // Fallback default fleet config
   return {
-    google: { enabled: true, model: 'gemini-3.5-flash', key: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY },
+    google: { enabled: true, model: 'gemini-2.5-flash', key: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY },
     openai: { enabled: !!process.env.OPENAI_API_KEY, model: 'gpt-4o', key: process.env.OPENAI_API_KEY || '' },
     anthropic: { enabled: !!process.env.ANTHROPIC_API_KEY, model: 'claude-3-5-sonnet-20241022', key: process.env.ANTHROPIC_API_KEY || '' },
     grok: { enabled: !!process.env.GROK_API_KEY || !!process.env.XAI_API_KEY, model: 'grok-2-latest', key: process.env.GROK_API_KEY || process.env.XAI_API_KEY || '' },
@@ -202,8 +202,8 @@ export async function callFleetAgent({
   try {
     const text = await generateGeminiText(prompt, enrichedInstruction);
     const label = targetProvider === 'google' 
-      ? 'Google Gemini 3.5 Flash' 
-      : `Google Gemini 3.5 Flash (Autonomous Failover for ${targetProvider.toUpperCase()})`;
+      ? 'Google Gemini 2.5 Flash' 
+      : `Google Gemini 2.5 Flash (Autonomous Failover for ${targetProvider.toUpperCase()})`;
     return { text, providerUsed: label, simulated: targetProvider !== 'google' };
   } catch (err) {
     console.error('[Fleet] Core Gemini dispatch failed:', err.message);

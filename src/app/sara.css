@@ -68,15 +68,18 @@
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  width: 380px;
+  width: 410px;
+  max-width: calc(100vw - 20px);
   height: 600px;
-  background: rgba(10, 11, 15, 0.85);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
+  max-height: calc(100vh - 4rem);
+  background: rgba(10, 11, 15, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
   box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 30px rgba(99, 102, 241, 0.2),
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(99, 102, 241, 0.25),
     inset 0 1px 0 rgba(255,255,255,0.1);
   display: flex;
   flex-direction: column;
@@ -91,14 +94,29 @@
 }
 
 .sara-header {
-  padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.08));
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sara-header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  flex-shrink: 0;
+  width: 100%;
+}
+
+.sara-header-sub {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-top: 2px;
 }
 
 .sara-btn-icon {
@@ -130,24 +148,26 @@
 
 .sara-capabilities {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .capability-tag {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   background: rgba(99, 102, 241, 0.1);
   color: var(--accent);
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 3px 7px;
+  border-radius: 10px;
   border: 1px solid rgba(99, 102, 241, 0.2);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
 }
 
 .sara-message-wrapper {
@@ -267,15 +287,15 @@
 /* Model Provider Select Dropdown */
 .sara-provider-select {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
   color: #fff;
-  font-size: 0.68rem;
-  padding: 3px 6px;
+  font-size: 0.7rem;
+  padding: 3px 8px;
   outline: none;
   cursor: pointer;
   transition: all 0.2s;
-  max-width: 110px;
+  max-width: 140px;
 }
 .sara-provider-select option {
   background: #111420;
@@ -286,35 +306,55 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Quick Action Chips */
-.sara-quick-actions {
+/* Quick Action Chips Bar (Docked right above input) */
+.sara-quick-bar {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
-  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(12, 14, 20, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
-.sara-quick-actions::-webkit-scrollbar {
+.sara-quick-bar::-webkit-scrollbar {
   display: none;
 }
 .sara-quick-chip {
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.7rem;
-  padding: 4px 10px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.72rem;
+  padding: 5px 12px;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
 }
 .sara-quick-chip:hover:not(:disabled) {
-  background: rgba(99, 102, 241, 0.2);
-  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.6);
   color: #fff;
   transform: translateY(-1px);
+}
+.sara-quick-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sara-welcome-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 /* Message Meta & Model Tag */

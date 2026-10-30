@@ -24,7 +24,7 @@ const QUICK_ACTIONS = [
 ];
 
 const PROVIDERS = [
-  { id: 'google', name: 'Gemini 3.5 Flash', tag: 'Fast & Deep' },
+  { id: 'google', name: 'Gemini 2.5 Flash', tag: 'Fast & Deep' },
   { id: 'openai', name: 'OpenAI GPT-4o', tag: 'Reasoning' },
   { id: 'anthropic', name: 'Claude 3.5 Sonnet', tag: 'Academic' },
   { id: 'grok', name: 'xAI Grok 2', tag: 'Adversarial' }
@@ -44,7 +44,7 @@ export default function SaraAssistant() {
     { 
       role: 'assistant', 
       content: 'Hello! I am Sara, your Principal AI Solutions Architect & Autonomous Research Copilot. I have full real-time clock awareness and deep command over all 52 RMinios research engines. How can I assist your discovery today?',
-      provider: 'Gemini 3.5 Flash'
+      provider: 'Gemini 2.5 Flash'
     }
   ]);
   const [input, setInput] = useState('');
@@ -130,7 +130,7 @@ export default function SaraAssistant() {
       setMessages([{ 
         role: 'assistant', 
         content: 'Hello! I am Sara, your Principal AI Solutions Architect & Autonomous Research Copilot. I have full real-time clock awareness and deep command over all 52 RMinios research engines. How can I assist your discovery today?',
-        provider: 'Gemini 3.5 Flash'
+        provider: 'Gemini 2.5 Flash'
       }]);
     }
   }, [userId]);
@@ -215,8 +215,20 @@ export default function SaraAssistant() {
         })
       });
       
-      const data = await res.json();
-      if (res.ok) {
+      // Safely parse JSON or text response to avoid throwing SyntaxError on HTML error pages
+      let data = null;
+      try {
+        const rawText = await res.text();
+        try {
+          data = JSON.parse(rawText);
+        } catch (jsonErr) {
+          data = { reply: rawText };
+        }
+      } catch (readErr) {
+        data = { reply: `Failed to read server response: ${readErr.message}` };
+      }
+
+      if (res.ok && data?.reply) {
         let replyContent = data.reply;
         let isLastGuestQuery = false;
 
@@ -252,15 +264,16 @@ export default function SaraAssistant() {
       } else {
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: data.reply || '⚠️ System Error: Unable to connect to orchestration layer.',
+          content: data?.reply || `⚠️ Server reported status ${res.status}. Please try again or switch model.`,
           provider: 'Error Guard'
         }]);
       }
     } catch (err) {
+      console.error('Sara client fetch error:', err);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: '⚠️ Network Error: Orchestration layer unreachable. Please check connection.',
-        provider: 'Network Error'
+        content: `⚠️ Connection Issue: ${err.message || 'Server did not respond'}. Please check your connection and retry.`,
+        provider: 'Network Diagnostics'
       }]);
     }
     setLoading(false);
@@ -276,7 +289,7 @@ export default function SaraAssistant() {
     const initialMsg = [{ 
       role: 'assistant', 
       content: 'Conversation history reset. I am Sara, your Principal Research Copilot. How can I assist you?',
-      provider: 'Gemini 3.5 Flash'
+      provider: 'Gemini 2.5 Flash'
     }];
     setMessages(initialMsg);
     localStorage.removeItem(`sara_history_${userId}`);
@@ -304,86 +317,81 @@ export default function SaraAssistant() {
     <div className={`sara-window ${isMinimized ? 'minimized' : ''}`}>
       {/* Header */}
       <div className="sara-header" onClick={() => setIsMinimized(!isMinimized)}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden' }}>
-          <div className="sara-avatar-mini">
-            <div className="sara-orb-core-mini" />
-          </div>
-          <div>
+        {/* Top Line: Brand + Guest Badge + Controls */}
+        <div className="sara-header-top">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <div className="sara-avatar-mini">
+              <div className="sara-orb-core-mini" />
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 600, color: '#fff' }}>
+              <h3 style={{ margin: 0, fontSize: '0.94rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>
                 Sara Copilot
               </h3>
               {isAuthenticated ? (
-                <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 6px', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.35)' }}>
+                <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 6px', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.35)', whiteSpace: 'nowrap' }}>
                   Full Access
                 </span>
               ) : (
-                <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 6px', background: 'rgba(234, 179, 8, 0.2)', color: '#fbbf24', border: '1px solid rgba(234, 179, 8, 0.35)' }}>
+                <span className="badge badge-accent" style={{ fontSize: '0.58rem', padding: '1px 6px', background: 'rgba(234, 179, 8, 0.2)', color: '#fbbf24', border: '1px solid rgba(234, 179, 8, 0.35)', whiteSpace: 'nowrap' }}>
                   Guest ({guestQueryCount}/{MAX_GUEST_QUERIES})
                 </span>
               )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)' }}>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} onClick={e => e.stopPropagation()}>
+            <button className="sara-btn-icon" title="Clear Chat History" onClick={clearHistory}>
+              <RefreshCw size={13} />
+            </button>
+            <button className="sara-btn-icon" title="Minimize" onClick={() => setIsMinimized(!isMinimized)}>
+              {isMinimized ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
+            </button>
+            <button className="sara-btn-icon" title="Close" onClick={() => { setIsOpen(false); setIsMinimized(false); }}>
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* Sub Line: Real-Time Date & Model Selector */}
+        {!isMinimized && (
+          <div className="sara-header-sub" onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.68rem', color: 'rgba(255,255,255,0.7)' }}>
               <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} />
               <span>{liveDateString || 'Online'}</span>
             </div>
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {/* Provider selector */}
-          <div onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
-            <select
-              value={selectedProvider}
-              onChange={e => setSelectedProvider(e.target.value)}
-              className="sara-provider-select"
-              title="Select LLM Engine"
-            >
-              {PROVIDERS.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)' }}>Model:</span>
+              <select
+                value={selectedProvider}
+                onChange={e => setSelectedProvider(e.target.value)}
+                className="sara-provider-select"
+                title="Select LLM Engine"
+              >
+                {PROVIDERS.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-
-          <button className="sara-btn-icon" title="Clear Chat History" onClick={clearHistory}>
-            <RefreshCw size={13} />
-          </button>
-          <button className="sara-btn-icon" title="Minimize" onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}>
-            {isMinimized ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
-          </button>
-          <button className="sara-btn-icon" title="Close" onClick={(e) => { e.stopPropagation(); setIsOpen(false); setIsMinimized(false); }}>
-            <X size={14} />
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Body */}
       {!isMinimized && (
         <>
           <div className="sara-body">
-            {/* Capability Pills */}
-            <div className="sara-capabilities">
-              <div className="capability-tag"><Calendar size={10} /> Real-Time Clock</div>
-              <div className="capability-tag"><Cpu size={10} /> Multi-LLM Fleet</div>
-              <div className="capability-tag"><Compass size={10} /> 3D Galaxy</div>
-              <div className="capability-tag"><FlaskConical size={10} /> Python Wasm</div>
-            </div>
-
-            {/* Quick Actions Carousel */}
-            <div className="sara-quick-actions">
-              {QUICK_ACTIONS.map((action, i) => (
-                <button
-                  key={i}
-                  className="sara-quick-chip"
-                  onClick={() => sendMessage(action.prompt)}
-                  disabled={loading || isGuestExhausted}
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
+            {/* Capability Welcome Badges (shown on fresh chat) */}
+            {messages.length <= 1 && (
+              <div className="sara-welcome-tags">
+                <div className="capability-tag"><Calendar size={10} /> Real-Time Clock</div>
+                <div className="capability-tag"><Cpu size={10} /> Multi-LLM Fleet</div>
+                <div className="capability-tag"><Compass size={10} /> 3D Galaxy</div>
+                <div className="capability-tag"><FlaskConical size={10} /> Python Wasm</div>
+              </div>
+            )}
             
             {/* Message Stream */}
             {messages.map((msg, idx) => (
@@ -488,6 +496,23 @@ export default function SaraAssistant() {
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Quick Action Chips Bar (Docked above input) */}
+          {!isGuestExhausted && (
+            <div className="sara-quick-bar">
+              {QUICK_ACTIONS.map((action, i) => (
+                <button
+                  key={i}
+                  className="sara-quick-chip"
+                  onClick={() => sendMessage(action.prompt)}
+                  disabled={loading || isGuestExhausted}
+                  type="button"
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Input Footer */}
           <div className="sara-footer">

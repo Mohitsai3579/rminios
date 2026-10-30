@@ -9,10 +9,15 @@ import { createClient } from '@supabase/supabase-js';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY);
 
 // Helper to interact with Supabase outside of Request context
-const getAdminSupabase = () => createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const getAdminSupabase = () => {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return null;
+  }
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+};
 
 // Fallback chain for general text generation (prioritizing active & high-capacity models)
 const FALLBACK_MODELS = [
@@ -28,9 +33,10 @@ export const embeddingModel = genAI.getGenerativeModel({
 
 // Helper to fetch active model and log usage
 async function getActiveModelAndLogUsage() {
-  const supabase = getAdminSupabase();
   let activeModel = 'gemini-3.5-flash';
   try {
+    const supabase = getAdminSupabase();
+    if (!supabase) return activeModel;
     const { data } = await supabase.from('site_settings').select('gemini_model').eq('id', 'global').single();
     // Ignore obsolete/deprecated models that now return 404
     const obsoleteModels = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
@@ -41,7 +47,7 @@ async function getActiveModelAndLogUsage() {
     // Log the usage
     await supabase.from('api_usage').insert({ model: activeModel, tokens: 0 });
   } catch (err) {
-    console.error('Gemini Admin Error:', err);
+    console.warn('Gemini Admin check failed (using fallback model):', err.message);
   }
   return activeModel;
 }

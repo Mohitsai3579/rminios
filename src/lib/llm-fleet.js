@@ -1,11 +1,16 @@
 import { generateText as generateGeminiText } from './gemini.js';
 import { createClient } from '@supabase/supabase-js';
 
-// Helper to access admin Supabase
-const getAdminSupabase = () => createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Helper to access admin Supabase safely
+const getAdminSupabase = () => {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return null;
+  }
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+};
 
 /**
  * Fetch saved fleet configuration from database
@@ -13,8 +18,10 @@ const getAdminSupabase = () => createClient(
 export async function getFleetConfig() {
   try {
     const supabase = getAdminSupabase();
-    const { data } = await supabase.from('system_settings').select('value').eq('key', 'fleet_config').single();
-    if (data?.value) return data.value;
+    if (supabase) {
+      const { data } = await supabase.from('system_settings').select('value').eq('key', 'fleet_config').single();
+      if (data?.value) return data.value;
+    }
   } catch (err) {
     console.warn('Could not read fleet_config from DB:', err.message);
   }

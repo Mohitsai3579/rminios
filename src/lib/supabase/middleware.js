@@ -55,25 +55,40 @@ export async function updateSession(request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes - redirect to login if not authenticated
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api/auth') &&
-    request.nextUrl.pathname !== '/'
-  ) {
+  const pathname = request.nextUrl.pathname;
+
+  // 1. API Route Protection (Never redirect API requests to an HTML login page to avoid 405 Method Not Allowed)
+  if (pathname.startsWith('/api/')) {
+    // Public & Hybrid APIs: Sara Copilot (supports guest preview), Auth callbacks, Spotify
+    const isPublicApi = 
+      pathname.startsWith('/api/sara') ||
+      pathname.startsWith('/api/auth') ||
+      pathname.startsWith('/api/spotify');
+
+    // Return JSON 401 for strictly authenticated APIs instead of redirecting
+    if (!user && !isPublicApi && (pathname.startsWith('/api/admin') || pathname.startsWith('/api/workspaces'))) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    return supabaseResponse;
+  }
+
+  // 2. Protected Page Routes - redirect unauthenticated users to login
+  const isProtectedRoute = 
+    pathname.startsWith('/dashboard') || 
+    pathname.startsWith('/admin');
+
+  if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
+    url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
   }
 
-  // Redirect logged-in users away from auth pages
+  // 3. Redirect logged-in users away from auth pages
   if (
     user &&
-    (request.nextUrl.pathname.startsWith('/login') ||
-      request.nextUrl.pathname.startsWith('/signup'))
+    (pathname.startsWith('/login') || pathname.startsWith('/signup'))
   ) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';

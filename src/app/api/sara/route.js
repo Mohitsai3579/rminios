@@ -239,3 +239,24 @@ GENERAL INTELLIGENCE INSTRUCTIONS:
     }, { status: 500 });
   }
 }
+
+export async function GET() {
+  return NextResponse.json({
+    status: 'online',
+    service: 'Sara Principal AI Orchestrator',
+    version: '2.5',
+    supportedMethods: ['POST', 'OPTIONS', 'GET']
+  });
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Allow': 'POST, OPTIONS, GET',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}

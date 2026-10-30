@@ -262,10 +262,16 @@ export default function SaraAssistant() {
           type: 'purple'
         });
       } else {
+        const errorContent = 
+          data?.reply || 
+          data?.error || 
+          (res.status === 401 
+            ? '🔒 Please sign in to access full Sara AI features.' 
+            : `⚠️ Server reported status ${res.status}. Please try again or switch model.`);
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: data?.reply || `⚠️ Server reported status ${res.status}. Please try again or switch model.`,
-          provider: 'Error Guard'
+          content: errorContent,
+          provider: 'Sara Safeguard'
         }]);
       }
     } catch (err) {

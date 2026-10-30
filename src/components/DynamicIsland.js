@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { 
   Play, Pause, Headphones, Volume2, Sparkles, X, 
   Search, Sliders, Waves, Brain, CloudRain, Disc3, 
-  ChevronDown, ExternalLink, CheckCircle2, Bell, Radio
+  ChevronDown, ExternalLink, CheckCircle2, Bell, Radio,
+  SkipForward, SkipBack
 } from 'lucide-react';
 import { useDynamicIsland } from '@/context/DynamicIslandContext';
 
@@ -20,6 +21,8 @@ export default function DynamicIsland() {
     playAmbient,
     stopAllAudio,
     togglePlay,
+    playNextTrack,
+    playPrevTrack,
     setVolume,
     setIsIslandExpanded,
     setIsSoundscapeModalOpen,
@@ -179,13 +182,29 @@ export default function DynamicIsland() {
               <span className="island-volume-text">{Math.round(volume * 100)}%</span>
             </div>
 
-            <div className="island-main-controls">
+            <div className="island-main-controls" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button 
+                className="island-icon-btn" 
+                onClick={playPrevTrack} 
+                title="Previous Track"
+                style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <SkipBack size={14} />
+              </button>
               <button 
                 className="island-play-pause-lg"
                 onClick={togglePlay}
                 title={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? <Pause size={18} /> : <Play size={18} style={{ marginLeft: 2 }} />}
+              </button>
+              <button 
+                className="island-icon-btn" 
+                onClick={playNextTrack} 
+                title="Next Track"
+                style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <SkipForward size={14} />
               </button>
             </div>
           </div>

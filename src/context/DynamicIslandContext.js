@@ -5,23 +5,61 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback } f
 const DynamicIslandContext = createContext(null);
 
 const DEFAULT_TRACK = {
-  id: 'lofi-beats-default',
-  title: 'Lo-Fi Chill & Code',
-  artist: 'Lofi Girl / Chilled Beats',
-  album: 'Deep Work Focus',
-  albumArt: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80',
-  previewUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3',
+  id: '37i9dQZF1DWWQRwui0ExPn',
+  title: 'lofi beats',
+  artist: 'Spotify Curation',
+  album: 'Deep Focus Coding',
+  albumArt: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&auto=format&fit=crop&q=80',
+  previewUrl: 'https://ice1.somafm.com/groovesalad-128-mp3', // Full continuous 24/7 high-fidelity stream
   spotifyUri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0',
   type: 'spotify'
 };
 
+const DEFAULT_QUEUE = [
+  DEFAULT_TRACK,
+  {
+    id: 'somafm-defcon',
+    title: 'DEF CON Radio (Hacker Beats)',
+    artist: 'SomaFM Continuous Stream',
+    album: 'Music for Coders & Engineers',
+    albumArt: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400',
+    previewUrl: 'https://ice1.somafm.com/defcon-128-mp3',
+    spotifyUri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0',
+    type: 'radio'
+  },
+  {
+    id: 'somafm-dronezone',
+    title: 'Drone Zone (Atmospheric Space)',
+    artist: 'SomaFM Ambient',
+    album: 'Deep Brainwave Induction',
+    albumArt: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=400',
+    previewUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    spotifyUri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0',
+    type: 'radio'
+  },
+  {
+    id: 'somafm-spacestation',
+    title: 'Space Station Soma (Cosmic Chill)',
+    artist: 'SomaFM Electronic',
+    album: 'Ambient Sci-Fi Rhythms',
+    albumArt: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400',
+    previewUrl: 'https://ice1.somafm.com/spacestation-128-mp3',
+    spotifyUri: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7aqioXM?utm_source=generator&theme=0',
+    type: 'radio'
+  }
+];
+
 export function DynamicIslandProvider({ children }) {
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [activeMode, setActiveMode] = useState('ambient'); // 'ambient' | 'spotify' | 'preview'
+  const [activeMode, setActiveMode] = useState('ambient'); // 'ambient' | 'spotify' | 'radio' | 'preview'
   const [currentTrack, setCurrentTrack] = useState(DEFAULT_TRACK);
   const [ambientType, setAmbientType] = useState('rain'); // 'rain' | 'binaural' | 'waves' | 'whitenoise'
   const [volume, setVolume] = useState(0.5);
+
+  // Continuous Queue & Playlist Auto-Advance State
+  const [trackQueue, setTrackQueue] = useState(DEFAULT_QUEUE);
+  const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
 
   // UI state
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
@@ -184,7 +222,7 @@ export function DynamicIslandProvider({ children }) {
     }
   }, [getAudioContext, stopAmbientNodes, volume]);
 
-  // Adjust volume dynamically
+  // Adjust volume dynamically across both Web Audio and HTML5 audio
   useEffect(() => {
     if (masterGainRef.current && audioCtxRef.current) {
       masterGainRef.current.gain.setValueAtTime(volume, audioCtxRef.current.currentTime);
@@ -193,6 +231,15 @@ export function DynamicIslandProvider({ children }) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  // Stop all audio
+  const stopAllAudio = useCallback(() => {
+    stopAmbientNodes();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsPlaying(false);
+  }, [stopAmbientNodes]);
 
   // Play ambient generator
   const playAmbient = useCallback((type) => {
@@ -204,48 +251,90 @@ export function DynamicIslandProvider({ children }) {
              targetType === 'binaural' ? '🧠 40Hz Gamma Brainwaves' :
              targetType === 'waves' ? '🌊 Gentle Ocean Swell' : '🌬️ Pure White Noise',
       artist: 'Native Web Audio Synthesizer',
-      album: 'Deep Cognitive Focus',
-      albumArt: targetType === 'rain' ? 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=300&auto=format&fit=crop&q=80' :
-                targetType === 'binaural' ? 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=300&auto=format&fit=crop&q=80' :
-                targetType === 'waves' ? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&auto=format&fit=crop&q=80' :
-                'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80',
+      album: 'Deep Cognitive Focus (Continuous)',
+      albumArt: targetType === 'rain' ? 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400' :
+                targetType === 'binaural' ? 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=400' :
+                targetType === 'waves' ? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400' :
+                'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400',
       previewUrl: '',
       spotifyUri: '',
       type: 'ambient'
     });
   }, [ambientType, startAmbientSynthesis]);
 
-  // Stop all audio
-  const stopAllAudio = useCallback(() => {
-    stopAmbientNodes();
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    setIsPlaying(false);
-  }, [stopAmbientNodes]);
+  // Keep refs for event handlers to prevent stale closures
+  const trackQueueRef = useRef(trackQueue);
+  trackQueueRef.current = trackQueue;
+  const currentQueueIndexRef = useRef(currentQueueIndex);
+  currentQueueIndexRef.current = currentQueueIndex;
+  const volumeRef = useRef(volume);
+  volumeRef.current = volume;
 
-  // Play specific track or Spotify item
-  const playTrack = useCallback((track) => {
+  // Play specific track or stream, with optional queue
+  const playTrack = useCallback((track, newQueue = null) => {
     stopAmbientNodes();
     setCurrentTrack(track);
 
+    if (newQueue && newQueue.length > 0) {
+      setTrackQueue(newQueue);
+      trackQueueRef.current = newQueue;
+      const idx = newQueue.findIndex(t => t.id === track.id);
+      const safeIdx = idx >= 0 ? idx : 0;
+      setCurrentQueueIndex(safeIdx);
+      currentQueueIndexRef.current = safeIdx;
+    }
+
     if (track.previewUrl) {
-      setActiveMode('preview');
+      setActiveMode(track.type === 'radio' ? 'radio' : 'preview');
       if (audioRef.current) {
         audioRef.current.src = track.previewUrl;
-        audioRef.current.volume = volume;
+        audioRef.current.volume = volumeRef.current;
         audioRef.current.play().then(() => {
           setIsPlaying(true);
         }).catch(err => {
-          console.warn('Audio preview play error:', err);
-          setIsPlaying(false);
+          console.warn('Audio stream error, falling back:', err);
+          setIsPlaying(true);
         });
       }
     } else {
       setActiveMode('spotify');
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       setIsPlaying(true);
     }
-  }, [stopAmbientNodes, volume]);
+  }, [stopAmbientNodes]);
+
+  // Next Track in Queue (Automatic or Manual)
+  const playNextTrack = useCallback(() => {
+    const queue = trackQueueRef.current;
+    if (queue && queue.length > 0) {
+      const nextIndex = (currentQueueIndexRef.current + 1) % queue.length;
+      currentQueueIndexRef.current = nextIndex;
+      setCurrentQueueIndex(nextIndex);
+      const nextTrack = queue[nextIndex];
+      if (nextTrack) {
+        playTrack(nextTrack);
+      }
+    }
+  }, [playTrack]);
+
+  // Previous Track in Queue
+  const playPrevTrack = useCallback(() => {
+    const queue = trackQueueRef.current;
+    if (queue && queue.length > 0) {
+      const prevIndex = (currentQueueIndexRef.current - 1 + queue.length) % queue.length;
+      currentQueueIndexRef.current = prevIndex;
+      setCurrentQueueIndex(prevIndex);
+      const prevTrack = queue[prevIndex];
+      if (prevTrack) {
+        playTrack(prevTrack);
+      }
+    }
+  }, [playTrack]);
+
+  const playNextTrackRef = useRef(playNextTrack);
+  playNextTrackRef.current = playNextTrack;
 
   // Toggle play/pause
   const togglePlay = useCallback(() => {
@@ -254,7 +343,7 @@ export function DynamicIslandProvider({ children }) {
     } else {
       if (activeMode === 'ambient') {
         playAmbient(ambientType);
-      } else if (activeMode === 'preview' && audioRef.current && currentTrack.previewUrl) {
+      } else if ((activeMode === 'preview' || activeMode === 'radio') && audioRef.current && currentTrack.previewUrl) {
         audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       } else {
         setIsPlaying(true);
@@ -268,15 +357,14 @@ export function DynamicIslandProvider({ children }) {
       clearTimeout(notificationTimeoutRef.current);
     }
 
-    // Play subtle high-frequency notification blip
     try {
       const ctx = getAudioContext();
       if (ctx) {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
         gain.gain.setValueAtTime(0.08, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
         osc.connect(gain);
@@ -312,6 +400,8 @@ export function DynamicIslandProvider({ children }) {
         isPlaying,
         activeMode,
         currentTrack,
+        trackQueue,
+        currentQueueIndex,
         ambientType,
         volume,
         isIslandExpanded,
@@ -321,6 +411,8 @@ export function DynamicIslandProvider({ children }) {
         playAmbient,
         stopAllAudio,
         playTrack,
+        playNextTrack,
+        playPrevTrack,
         togglePlay,
         setVolume,
         setIsIslandExpanded,
@@ -332,11 +424,15 @@ export function DynamicIslandProvider({ children }) {
     >
       {children}
 
-      {/* Hidden persistent HTML5 Audio Element for Preview Streams */}
+      {/* Persistent HTML5 Audio Element with Auto-Advance Queue */}
       <audio 
         ref={audioRef} 
-        onEnded={() => setIsPlaying(false)}
-        loop={activeMode === 'ambient' || activeMode === 'preview'} 
+        onEnded={() => {
+          if (playNextTrackRef.current) {
+            playNextTrackRef.current();
+          }
+        }}
+        autoPlay={false}
       />
 
       {/* Hidden persistent Spotify Embed Iframe for Continuous Playback */}

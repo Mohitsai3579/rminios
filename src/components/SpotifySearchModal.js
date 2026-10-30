@@ -89,7 +89,7 @@ export default function SpotifySearchModal() {
   };
 
   const handleSelectTrack = (track) => {
-    playTrack(track);
+    playTrack(track, results);
     showNotification({
       title: 'Now Playing in Background',
       message: `${track.title} • ${track.artist}`,

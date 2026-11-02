@@ -359,8 +359,8 @@ rminios/
 **RMinios OS** is designed, developed, and maintained by:
 
 * **Creator & Architect:** Mohit Jonnadula
-* **Email:** [mohitjonnadula16@gmail.com](mailto:mohitjonnadula16@gmail.com)
-* **Phone:** +91 9494366318
+* **Email:** [mohit@gmail.com](mailto:mohitjonnadula16@gmail.com)
+* **Phone:** +91 ***********
 * **GitHub:** [@Mohitsai3579](https://github.com/Mohitsai3579)
 * **Live Deployment:** [rminios.vercel.app](https://rminios.vercel.app)
 * **Support Ticket Center:** [rminios.vercel.app/support](https://rminios.vercel.app/support)

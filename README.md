@@ -251,9 +251,9 @@ In your Supabase project's **SQL Editor**, run the following migration scripts:
 -- 1. Create Site Settings Table
 CREATE TABLE IF NOT EXISTS public.site_settings (
     id TEXT PRIMARY KEY DEFAULT 'global',
-    owner_name TEXT NOT NULL DEFAULT 'Mohit Jonnadula',
-    support_email TEXT NOT NULL DEFAULT 'mohitjonnadula16@gmail.com',
-    support_phone TEXT NOT NULL DEFAULT '9494366318',
+    owner_name TEXT NOT NULL DEFAULT '',
+    support_email TEXT NOT NULL DEFAULT '',
+    support_phone TEXT NOT NULL DEFAULT '',
     gemini_model TEXT NOT NULL DEFAULT 'gemini-2.5-flash',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );

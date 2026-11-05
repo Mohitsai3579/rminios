@@ -11,9 +11,9 @@
 [![Vercel](https://img.shields.io/badge/Deployed-Vercel_Edge-black?style=for-the-badge&logo=vercel)](https://rminios.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Accelerate scientific discovery from literature gaps to verified PyTorch code, adversarial peer-reviewed papers, and venture-backed deep-tech startups.**
+**Accelerate scientific discovery from literature gaps to verified code, adversarial peer-reviewed papers, and venture-backed deep-tech startups.**
 
-[🚀 **Experience the Live App**](https://rminios.vercel.app) • [📖 **Documentation**](#-getting-started) • [🪐 **Interactive 3D Demo**](https://rminios.vercel.app#engines) • [📬 **Support**](https://rminios.vercel.app/support)
+[🚀 **Experience the Live App**](https://rminios.vercel.app) • [📖 **Documentation**](#-getting-started) • [🪐 **Interactive 3D Demo**](https://rminios.vercel.app#engines) • [📬 **Contact Support**](https://rminios.vercel.app/support)
 
 </div>
 
@@ -30,7 +30,7 @@
   - [5. ⚖️ Adversarial NeurIPS Peer Review Committee](#5-️-adversarial-neurips-peer-review-committee)
   - [6. 🚀 Academic-to-Startup Venture Studio](#6--academic-to-startup-venture-studio)
   - [7. 🛡️ Scientific Integrity Shield](#7-️-scientific-integrity-shield)
-  - [8. 🎯 $500M+ Autonomous Grant Radar](#8--500m-autonomous-grant-radar)
+  - [8. 🎯 Autonomous Grant Radar](#8--autonomous-grant-radar)
   - [9. 📡 Global Literature Radar](#9--global-literature-radar)
   - [10. 🎧 Deep Work Soundscape & Spotify Dynamic Island](#10--deep-work-soundscape--spotify-dynamic-island)
 - [🤖 Sara AI: Principal Autonomous Research Copilot](#-sara-ai-principal-autonomous-research-copilot)
@@ -46,12 +46,12 @@
 
 ## 💡 Overview
 
-**RMinios** is a unified **Research Operating System (AI & ML Discovery Engine)** built to replace fragmented academic and engineering workflows. Traditional scientific discovery requires researchers to juggle dozens of disconnected tools: Google Scholar for search, Overleaf for drafting, local Python environments for testing, ChatGPT for brainstorming, Spotify for focus, and endless grant portals.
+**RMinios** is a unified **Research Operating System (AI & ML Discovery Engine)** built to explore unified academic and engineering workflows. Traditional scientific discovery requires researchers to juggle dozens of disconnected tools: Google Scholar for search, Overleaf for drafting, local Python environments for testing, ChatGPT for brainstorming, Spotify for focus, and endless grant portals.
 
-RMinios unites the entire scientific pipeline into a single, cohesive operating system with **52 production routes**, featuring:
-- **Zero-Latency In-Browser Code Execution** using WebAssembly (Pyodide Python 3.11).
-- **Frontier Multi-Agent LLM Swarms** that debate hypotheses across 4 distinct AI models.
-- **WebGL 3D Force-Directed Citation Graphs** that automatically pinpoint unexplored research white spaces.
+RMinios unites the research pipeline into a single, cohesive operating system with **10 modular research engines**, featuring:
+- **In-Browser Code Execution** using WebAssembly (Pyodide Python 3.11 with NumPy).
+- **Frontier Multi-Agent LLM Swarms** that debate hypotheses across distinct AI model personas.
+- **WebGL 3D Force-Directed Citation Graphs** that help identify unexplored research white spaces.
 - **NeurIPS/ICML Adversarial Peer Review & Rebuttal Synthesizers**.
 - **Automated Academic Commercialization** generating TAM/SAM/SOM market sizes and 10-slide VC pitch decks.
 
@@ -61,23 +61,23 @@ RMinios unites the entire scientific pipeline into a single, cohesive operating 
 
 ### 1. 🌌 3D Citation Constellation & Knowledge Galaxy
 *Route: `/dashboard/galaxy`*
-* **WebGL 3D Celestial Force Graph**: Built with Three.js to map millions of papers in an interactive 3D universe.
+* **WebGL 3D Celestial Force Graph**: Built with Three.js to map research papers in an interactive 3D universe.
 * **Autonomous Gap Discovery**: Analyzes vector distance clusters between landmark papers (*Transformers*, *DDPM*, *LoRA*, *Mamba SSM*) to identify unexplored interdisciplinary intersection points with algorithmic discovery confidence scores.
 * **Interactive Inspection**: Full 360° camera orbit, depth scaling, and node inspection displaying title, citation velocity, and target publication venues.
 
 ### 2. 🧪 In-Browser Pyodide Python WASM Sandbox
 *Route: `/dashboard/sandbox`*
-* **100% Client-Side Execution**: Runs Python 3.11 with NumPy and PyTorch micro-kernels directly in the browser via WebAssembly (Pyodide).
-* **Zero Server Latency & High Privacy**: Code executes locally on the user's machine without transmitting confidential algorithms or data to cloud servers.
-* **Pre-Loaded Empirical Benchmarks**: Validate Attention $O(N^2)$ vs FlashAttention-3 memory scaling, DDPM noise schedules, and enzyme kinetics with real-time tensor allocations and plots.
+* **100% Client-Side Execution**: Runs Python 3.11 with NumPy directly in the browser via WebAssembly (Pyodide).
+* **Runs in Your Browser**: Code executes locally on the user's machine without transmitting confidential algorithms or data to cloud servers.
+* **Pre-Loaded Empirical Benchmarks**: Validate Attention $O(N^2)$ calculations, DDPM noise schedules, and enzyme kinetics with real-time tensor allocations and plots.
 
 ### 3. 🐝 4-Agent Multi-LLM Swarm Arena
 *Route: `/dashboard/swarm`*
-* **Multi-Turn Collaborative & Adversarial Debate**: Orchestrates four frontier foundation models in consensus rounds:
-  1. **Anthropic Claude 3.5 Sonnet**: Hypothesizer proposing theoretical grounding and formal lemmas.
-  2. **xAI Grok 2**: Adversarial stress-tester identifying edge cases, hardware constraints, and counter-hypotheses.
-  3. **OpenAI GPT-4o**: Mathematical formalizer bounding condition numbers and algorithmic proofs.
-  4. **Google Gemini 2.5 Flash**: Senior Area Chair synthesizing multi-agent consensus verdicts.
+* **Multi-Turn Collaborative & Adversarial Debate**: Orchestrates configurable frontier foundation models in consensus rounds:
+  1. **Anthropic Claude**: Hypothesizer proposing theoretical grounding and formal lemmas.
+  2. **xAI Grok**: Adversarial stress-tester identifying edge cases, hardware constraints, and counter-hypotheses.
+  3. **OpenAI GPT**: Mathematical formalizer bounding condition numbers and algorithmic proofs.
+  4. **Google Gemini**: Senior Area Chair synthesizing multi-agent consensus verdicts.
 * **Code Studio Injection**: Automatically transfers consensus algorithms directly into project repositories.
 
 ### 4. 🎙️ Autonomous Dual-Host Audio Studio
@@ -103,18 +103,18 @@ RMinios unites the entire scientific pipeline into a single, cohesive operating 
 
 ### 7. 🛡️ Scientific Integrity Shield
 *Route: `/dashboard/integrity`*
-* **Retracted Paper Scanner**: Audits uploaded papers against a database of 50,000+ retracted journal articles.
-* **DOI Authenticity & Crossref Verification**: Cross-references citations to eliminate AI-hallucinated references.
+* **Retracted Paper Scanner**: Audits uploaded papers against curated Retraction Watch sample datasets.
+* **DOI Authenticity & Crossref Verification**: Cross-references citations via Crossref to eliminate unverified references.
 * **Conflict of Interest Audit**: Scans author disclosures for undisclosed institutional or commercial funding ties.
 
-### 8. 🎯 $500M+ Autonomous Grant Radar
+### 8. 🎯 Autonomous Grant Radar
 *Route: `/dashboard/grants`*
-* **Funding Opportunity Matcher**: Cross-matches research proposals against active grants from the National Science Foundation (NSF), National Institutes of Health (NIH), DARPA, and Horizon Europe.
+* **Funding Opportunity Matcher**: Cross-matches research proposals against curated sample calls from NSF, NIH, DARPA, and Horizon Europe datasets.
 * **Milestone & Proposal Package Synthesizer**: Formulates structured milestone timelines, budget allocations, and compliance checklists.
 
 ### 9. 📡 Global Literature Radar
 *Route: `/dashboard/radar`*
-* **Real-Time Pre-Print Stream**: Live streaming feeds from Cornell ArXiv, bioRxiv, and IEEE.
+* **Real-Time Pre-Print Stream**: Live streaming feeds from arXiv and bioRxiv.
 * **Algorithmic Trend Analysis**: Tracks citation velocity, emerging keyword clusters, and daily executive summaries.
 
 ### 10. 🎧 Deep Work Soundscape & Spotify Dynamic Island
@@ -132,7 +132,7 @@ RMinios unites the entire scientific pipeline into a single, cohesive operating 
 
 Sara is the conversational orchestrator of RMinios, accessible via the bottom-right interactive orb:
 - **Native Temporal Awareness**: Possesses real-time clock awareness—accurately answers current dates, days of the week, times, timezones, and relative deadlines without robotic knowledge cutoff excuses.
-- **Multi-LLM Engine Switcher**: Seamlessly switch between **Gemini 2.5 Flash**, **OpenAI GPT-4o**, **Claude 3.5 Sonnet**, and **xAI Grok 2**.
+- **Configurable Multi-LLM Switcher**: Route prompts to **Gemini 2.5 Flash**, **OpenAI GPT models**, **Claude Sonnet**, or **xAI Grok**.
 - **Guest Preview Mode**: Unauthenticated visitors receive **3 free questions** with motivational previews to explore features, after which they can create a free account for unlimited access.
 - **Docked Quick Chips Bar**: Ergonomic horizontal prompt shortcuts docked above the input field for instant access without layout clipping.
 - **Role-Based Intelligence (RBAC)**: Adapts behavior dynamically for visitors, authenticated researchers, and system administrators.
@@ -143,12 +143,12 @@ Sara is the conversational orchestrator of RMinios, accessible via the bottom-ri
 
 RMinios orchestrates multiple foundation models through a unified routing layer ([`src/lib/llm-fleet.js`](file:///C:/Users/Mohit/.gemini/antigravity/scratch/src/lib/llm-fleet.js)):
 
-| Model | Context Window | Typical Latency | Primary Specialization in RMinios |
-| :--- | :--- | :--- | :--- |
-| **Google Gemini 2.5 Flash** | 1,000,000 Tokens | `< 450ms` | Real-time literature ingestion, Sara Copilot, multimodal vision |
-| **OpenAI GPT-4o** | 128,000 Tokens | `< 620ms` | Formal mathematical proofs, PyTorch architecture generation |
-| **Anthropic Claude 3.5 Sonnet** | 200,000 Tokens | `< 580ms` | Peer-review academic prose, structured LaTeX, Area Chair synthesis |
-| **xAI Grok 2** | 128,000 Tokens | `< 510ms` | Adversarial stress testing, edge-case probing, counter-hypotheses |
+| Model | Context Window | Primary Specialization in RMinios |
+| :--- | :--- | :--- |
+| **Google Gemini (2.5 Flash / Pro)** | 1,000,000 Tokens | Real-time literature ingestion, Sara Copilot, multimodal reasoning |
+| **OpenAI (GPT-4o / Reasoning Models)** | 128,000 Tokens | Formal mathematical proofs, algorithmic architecture generation |
+| **Anthropic Claude (3.5 / 3.7 Sonnet)** | 200,000 Tokens | Peer-review academic prose, structured LaTeX, Area Chair synthesis |
+| **xAI Grok / Open Models** | 128,000 Tokens | Adversarial stress testing, edge-case probing, counter-hypotheses |
 
 ---
 
@@ -251,15 +251,14 @@ In your Supabase project's **SQL Editor**, run the following migration scripts:
 -- 1. Create Site Settings Table
 CREATE TABLE IF NOT EXISTS public.site_settings (
     id TEXT PRIMARY KEY DEFAULT 'global',
-    owner_name TEXT NOT NULL DEFAULT 'Mohit Jonnadula',
-    support_email TEXT NOT NULL DEFAULT 'mohitjonnadula16@gmail.com',
-    support_phone TEXT NOT NULL DEFAULT '9494366318',
+    owner_name TEXT NOT NULL DEFAULT 'Jonnadula Mohit Sai',
+    support_email TEXT NOT NULL DEFAULT 'support@rminios.dev',
     gemini_model TEXT NOT NULL DEFAULT 'gemini-2.5-flash',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-INSERT INTO public.site_settings (id, owner_name, support_email, support_phone, gemini_model)
-VALUES ('global', 'Mohit Jonnadula', 'mohitjonnadula16@gmail.com', '9494366318', 'gemini-2.5-flash')
+INSERT INTO public.site_settings (id, owner_name, support_email, gemini_model)
+VALUES ('global', 'Jonnadula Mohit Sai', 'support@rminios.dev', 'gemini-2.5-flash')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Create API Telemetry Usage Table
@@ -358,12 +357,11 @@ rminios/
 
 **RMinios OS** is designed, developed, and maintained by:
 
-* **Creator & Architect:** Mohit Jonnadula
-* **Email:** [mohitjonnadula16@gmail.com](mailto:mohitjonnadula16@gmail.com)
-* **Phone:** +91 9494366318
+* **Creator & Architect:** Jonnadula Mohit Sai
+* **Contact & Support Form:** [rminios.vercel.app/support](https://rminios.vercel.app/support)
 * **GitHub:** [@Mohitsai3579](https://github.com/Mohitsai3579)
 * **Live Deployment:** [rminios.vercel.app](https://rminios.vercel.app)
-* **Support Ticket Center:** [rminios.vercel.app/support](https://rminios.vercel.app/support)
+* **Issue Tracker:** [github.com/Mohitsai3579/rminios/issues](https://github.com/Mohitsai3579/rminios/issues)
 
 ---
 

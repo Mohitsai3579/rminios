@@ -26,9 +26,8 @@ export async function POST(request) {
 
     let user = null;
     let userRole = 'visitor';
-    let ownerName = 'Mohit Jonnadula';
-    let supportEmail = 'mohitjonnadula16@gmail.com';
-    let supportPhone = '9494366318';
+    let ownerName = 'Jonnadula Mohit Sai';
+    let supportEmail = 'via the contact form at /support';
 
     // Safely check user auth session without throwing on guests or network blips
     try {
@@ -47,8 +46,6 @@ export async function POST(request) {
         const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 'global').single().catch(() => ({ data: null }));
         if (settings) {
           ownerName = settings.owner_name || ownerName;
-          supportEmail = settings.support_email || supportEmail;
-          supportPhone = settings.support_phone || supportPhone;
         }
       }
     } catch (authErr) {
@@ -122,12 +119,12 @@ NEVER state that you lack real-time access or cannot know the current date and d
     const platformCapabilitiesContext = `
 ================================================================================
 RMINIOS PLATFORM KNOWLEDGE BASE & FEATURE NAVIGATION:
-You are the central orchestrator for RMinios (Research Operating System), an advanced multi-agent scientific discovery platform with 52 production routes. When users ask for guidance, you can provide direct links and actionable instructions:
+You are the central orchestrator for RMinios (Research Operating System), an advanced multi-agent scientific discovery platform with 10 modular research engines. When users ask for guidance, you can provide direct links and actionable instructions:
 
 1. 🌌 3D Citation Constellation & Knowledge Galaxy (/dashboard/galaxy):
    WebGL 3D celestial force-directed physics graph connecting landmark papers and automatically pinpointing unexplored interdisciplinary "white spaces".
 2. 🧪 In-Browser Python Experiment Sandbox (/dashboard/sandbox):
-   Runs Python 3.11 in-browser via Pyodide WebAssembly with zero server execution latency. Validates Attention mechanisms O(N²), DDPM diffusion noise schedules, and enzyme kinetics with empirical validation match scores.
+   Runs Python 3.11 with NumPy in your browser via Pyodide WebAssembly. Validates Attention mechanisms, diffusion noise schedules, and enzyme kinetics with client-side execution.
 3. 🎙️ Autonomous Research Podcast & Audio Studio (/dashboard/podcast):
    NotebookLM-style dual-host conversational scientific dialogue (Dr. Alex & Dr. Jordan) with live speech synthesis and synchronized transcript highlighting.
 4. ⚖️ Multi-Agent Adversarial Peer Review Committee (/dashboard/peer-review):
@@ -135,9 +132,9 @@ You are the central orchestrator for RMinios (Research Operating System), an adv
 5. 🚀 Academic-to-Startup Venture Studio & Pitch Deck Generator (/dashboard/venture):
    Transforms academic research into commercial deep-tech startups. Computes TAM/SAM/SOM market sizing, defensible moats, unit economics, and 10-slide VC pitch decks with interactive presentation mode.
 6. 🛡️ Scientific Integrity Shield & Citation Authenticator (/dashboard/integrity):
-   Scans papers for retracted citations, DOI verification, hallucinated references, and conflict-of-interest disclosures.
+   Scans papers against curated Retraction Watch sample datasets, DOI verification via Crossref, hallucinated references, and conflict-of-interest disclosures.
 7. 🎯 Autonomous Grant Intelligence & Funding Radar (/dashboard/grants):
-   AI-powered radar cross-matching research proposals with $500M+ funding calls from NSF, NIH, DARPA, and Horizon Europe.
+   AI-powered radar cross-matching research proposals with curated funding calls from NSF, NIH, DARPA, and Horizon Europe.
 8. 🐝 Multi-Agent Swarm Arena (/dashboard/swarm):
    Collaborative multi-LLM debate orchestrating OpenAI GPT-4o, Anthropic Claude 3.5, and xAI Grok.
 9. 🎨 Generative Architecture Canvas (/dashboard/workspace/[id]?tab=canvas):
@@ -179,9 +176,8 @@ Your role:
 3. Showcase what RMinios can do (the 3D Knowledge Galaxy, Pyodide Sandbox, Multi-Agent Peer Review, Venture Pitch Generator, and Swarm Intelligence).
 4. Guide them to sign up at /signup to start building their research projects.
 5. If they ask about the owner or support contacts, provide:
-   - Creator/Owner: ${ownerName}
-   - Email: ${supportEmail}
-   - Phone: ${supportPhone}
+   - Creator/Architect: ${ownerName}
+   - Contact / Inquiries: Users can reach out directly via the Contact Form at /support or GitHub at https://github.com/Mohitsai3579/rminios
 SECURITY BOUNDARY: Do not reveal backend environment secrets or private service-role keys.`;
     }
 

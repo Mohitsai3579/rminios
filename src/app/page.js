@@ -14,6 +14,25 @@ import {
 import './landing.css';
 import TiltCard3D from '@/components/TiltCard3D';
 
+function GithubIcon({ size = 16, style = {} }) {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      style={style}
+    >
+      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+      <path d="M9 18c-4.51 2-5-2-7-2" />
+    </svg>
+  );
+}
+
 // Lazy load 3D Interactive Hero Canvas
 const InteractiveHero3D = dynamic(() => import('@/components/InteractiveHero3D'), { 
   ssr: false,
@@ -34,6 +53,11 @@ const InteractiveGalaxy3D = dynamic(() => import('@/components/InteractiveGalaxy
   )
 });
 
+// Lazy load 60-second interactive demo walkthrough
+const DemoWalkthrough60s = dynamic(() => import('@/components/DemoWalkthrough60s'), {
+  ssr: false
+});
+
 const FADE_UP_VARIANTS = {
   hidden: { opacity: 0, y: 25 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
@@ -42,9 +66,8 @@ const FADE_UP_VARIANTS = {
 export default function LandingPage() {
   // Dynamic Site Settings from Supabase
   const [siteSettings, setSiteSettings] = useState({
-    owner_name: 'Mohit Jonnadula',
-    support_email: 'mohitjonnadula16@gmail.com',
-    support_phone: '9494366318'
+    owner_name: 'Jonnadula Mohit Sai',
+    support_email: 'support@rminios.dev'
   });
 
   // Interactive Engine Playground State
@@ -53,7 +76,7 @@ export default function LandingPage() {
   const [isRunningPython, setIsRunningPython] = useState(false);
   const [pythonOutput, setPythonOutput] = useState([
     ">> Pyodide 0.26 WebAssembly Runtime Initialized [Emscripten 3.1.58]",
-    ">> Ready to execute torch.nn.MultiheadAttention benchmark."
+    ">> Ready to execute pure NumPy self-attention matrix multiplication in your browser."
   ]);
   const [isPlayingAudioSim, setIsPlayingAudioSim] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
@@ -70,18 +93,18 @@ export default function LandingPage() {
   const handleRunPython = () => {
     if (isRunningPython) return;
     setIsRunningPython(true);
-    setPythonOutput(prev => [...prev, ">> Compiling PyTorch tensor graphs in browser..."]);
+    setPythonOutput(prev => [...prev, ">> Computing NumPy attention weights locally in browser WebAssembly..."]);
     
     setTimeout(() => {
       setPythonOutput(prev => [
         ...prev,
-        ">> Synthesized FlashAttention-3 Kernel [B=1, H=8, Seq=4096, D=64]",
-        ">> FlashAttention Speedup: 3.42x vs Standard O(N²)",
-        ">> Peak Memory Allocation: 14.2 MB (88.4% VRAM Reduction)",
-        ">> Empirical Validation Score: 99.82% Exact Match [PASS]"
+        ">> Matrix Dimensions: Q, K, V = (batch=1, heads=8, seq_len=512, dim=64)",
+        ">> Scaled dot-product attention computed via np.matmul & softmax",
+        ">> Client-Side Memory: Local Browser Sandbox (0 Cloud Server Compute)",
+        ">> Validation Result: Shapes Verified, Attention Score Matched [PASS]"
       ]);
       setIsRunningPython(false);
-    }, 1200);
+    }, 900);
   };
 
   return (
@@ -103,6 +126,7 @@ export default function LandingPage() {
           <a href="#fleet" className="landing-nav-link">Model Fleet</a>
           <a href="#innovations" className="landing-nav-link">Innovations</a>
           <a href="#architecture" className="landing-nav-link">Architecture</a>
+          <a href="#exploration" className="landing-nav-link">Exploration</a>
           <a href="#pricing" className="landing-nav-link">Pricing</a>
           <a href="#faq" className="landing-nav-link">FAQ</a>
         </div>
@@ -110,8 +134,17 @@ export default function LandingPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div className="status-pill-live hidden-mobile">
             <span className="status-dot-pulse" />
-            <span>52 Engines Live</span>
+            <span>10 Modular Engines</span>
           </div>
+          <a 
+            href="https://github.com/Mohitsai3579/rminios" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="landing-nav-link"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.86rem' }}
+          >
+            <GithubIcon size={16} /> GitHub
+          </a>
           <Link href="/login" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', fontWeight: 600, textDecoration: 'none' }}>
             Sign In
           </Link>
@@ -122,7 +155,7 @@ export default function LandingPage() {
       </nav>
 
       {/* =====================================================================
-          HERO SECTION WITH 3D QUANTUM NEURAL CORE
+          HERO SECTION WITH 3D QUANTUM NEURAL CORE & 60S DEMO
           ===================================================================== */}
       <section className="hero-section">
         <div className="hero-bg-glow" />
@@ -136,10 +169,12 @@ export default function LandingPage() {
           }}
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10, width: '100%', maxWidth: 1200 }}
         >
-          {/* Top Badge */}
-          <motion.div variants={FADE_UP_VARIANTS} className="hero-badge-pill">
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
-            <span>Introducing RMinios OS 2.5 • Frontier Multi-Agent Research System</span>
+          {/* Top Badge: Beta / Portfolio Project */}
+          <motion.div variants={FADE_UP_VARIANTS} className="hero-badge-pill" style={{ background: 'rgba(99,102,241,0.15)', borderColor: 'rgba(99,102,241,0.35)' }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366f1', boxShadow: '0 0 10px #6366f1' }} />
+            <span style={{ fontWeight: 700, color: '#c7d2fe' }}>Beta / Portfolio Project</span>
+            <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+            <span>RMinios OS 2.5 by Jonnadula Mohit Sai</span>
           </motion.div>
 
           {/* Hero Title */}
@@ -150,7 +185,7 @@ export default function LandingPage() {
 
           {/* Subtitle */}
           <motion.p variants={FADE_UP_VARIANTS} className="hero-subtitle">
-            Orchestrate 4-agent LLM debate swarms, in-browser PyTorch experiment sandboxes, 3D citation constellations, and academic-to-venture synthesis at the speed of thought.
+            Orchestrate multi-agent debate swarms, in-browser Python (NumPy) experiment sandboxes, 3D citation constellations, and academic-to-venture synthesis at the speed of thought.
           </motion.p>
 
           {/* ⭐ 3D INTERACTIVE HERO STAGE ⭐ */}
@@ -173,26 +208,40 @@ export default function LandingPage() {
             <Link href="/signup" className="premium-btn-primary" style={{ padding: '14px 32px', fontSize: '1rem' }}>
               Launch Research Hub (Free) <ArrowRight size={18} />
             </Link>
-            <a href="#engines" className="premium-btn" style={{ padding: '14px 26px', fontSize: '0.94rem' }}>
-              <Zap size={17} style={{ color: '#eab308' }} /> Explore 6 Live Engines
+            <a 
+              href="https://github.com/Mohitsai3579/rminios" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="premium-btn" 
+              style={{ padding: '14px 26px', fontSize: '0.94rem', display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <GithubIcon size={17} /> View on GitHub
             </a>
+            <a href="#engines" className="premium-btn" style={{ padding: '14px 22px', fontSize: '0.94rem' }}>
+              <Zap size={17} style={{ color: '#eab308' }} /> Explore 10 Modular Engines
+            </a>
+          </motion.div>
+
+          {/* ⭐ 60-SECOND INTERACTIVE PLATFORM WALKTHROUGH ⭐ */}
+          <motion.div variants={FADE_UP_VARIANTS} style={{ width: '100%' }}>
+            <DemoWalkthrough60s />
           </motion.div>
 
           {/* Live Micro-Stats Bar */}
           <motion.div variants={FADE_UP_VARIANTS} className="hero-stats-bar">
             <div className="hero-stat-item">
-              <span className="hero-stat-value">42M+</span>
-              <span className="hero-stat-label">Papers Indexed</span>
+              <span className="hero-stat-value">Search arXiv live</span>
+              <span className="hero-stat-label">Global Pre-Prints</span>
             </div>
             <div className="hero-stat-divider" />
             <div className="hero-stat-item">
-              <span className="hero-stat-value">4 Frontier LLMs</span>
+              <span className="hero-stat-value">Configurable LLMs</span>
               <span className="hero-stat-label">Swarm Consensus</span>
             </div>
             <div className="hero-stat-divider" />
             <div className="hero-stat-item">
-              <span className="hero-stat-value">0ms Latency</span>
-              <span className="hero-stat-label">In-Browser Pyodide WASM</span>
+              <span className="hero-stat-value">Runs in your browser</span>
+              <span className="hero-stat-label">Pyodide Python WASM</span>
             </div>
             <div className="hero-stat-divider" />
             <div className="hero-stat-item">
@@ -201,8 +250,8 @@ export default function LandingPage() {
             </div>
             <div className="hero-stat-divider" />
             <div className="hero-stat-item">
-              <span className="hero-stat-value">$500M+</span>
-              <span className="hero-stat-label">Active Grant Radar</span>
+              <span className="hero-stat-value">Sample Datasets</span>
+              <span className="hero-stat-label">Grant & Funding Radar</span>
             </div>
           </motion.div>
         </motion.div>
@@ -214,7 +263,7 @@ export default function LandingPage() {
       <section id="engines" className="section-premium" style={{ background: 'linear-gradient(180deg, #000000 0%, #080a12 50%, #000000 100%)' }}>
         <h2 className="section-title">Test the Breakthrough Engines.</h2>
         <p className="section-subtitle">
-          Six autonomous AI engines engineered to replace fragmented research tools. Click any tab below to test the live interactive preview right now.
+          Ten modular research engines engineered to explore unified scientific workflows. Click any tab below to test the live interactive preview right now.
         </p>
 
         <div className="playground-container">
@@ -295,12 +344,17 @@ export default function LandingPage() {
                     onSelectNode={setSelectedGalaxyNode} 
                   />
 
-                  {/* Dynamic White Space Output Card */}
+                  {/* Dynamic White Space Output Card (Labeled as Example Output) */}
                   <div className="galaxy-whitespace-card" style={{ maxWidth: '100%' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
-                      <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#4ade80' }}>
-                        UNEXPLORED RESEARCH GAP DETECTED IN 3D GRAPH
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
+                        <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#4ade80' }}>
+                          UNEXPLORED RESEARCH GAP DETECTED IN 3D GRAPH
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'rgba(234, 179, 8, 0.15)', color: '#facc15', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+                        Example output / Concept exploration
                       </span>
                     </div>
                     {selectedGalaxyNode === 'transformers' && (
@@ -311,8 +365,8 @@ export default function LandingPage() {
                         <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           While Vaswani et al. solves token routing in O(N²), billion-scale genomic cell reads suffer extreme memory blowup. Vector proximity reveals an unbridged gap between LoRA rank decomposition and sparse FlashAttention.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#38bdf8' }}>
-                          <span>Discovery Potential: 98.4%</span> • <span>Estimated Citations: 450+</span> • <span>Target Venue: Nature Biotechnology</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#38bdf8', flexWrap: 'wrap' }}>
+                          <span>Discovery Potential: 98.4% (Example output)</span> • <span>Estimated Citations: 450+ (Example output)</span> • <span>Target Venue: Nature Biotechnology</span>
                         </div>
                       </div>
                     )}
@@ -324,8 +378,8 @@ export default function LandingPage() {
                         <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           DDPM Langevin sampling requires 1,000 steps. Bridging this node with Riemannian geometry yields continuous 1-step generative trajectory for inorganic superconductors.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#f43f5e' }}>
-                          <span>Discovery Potential: 96.8%</span> • <span>Target Venue: Nature Materials</span> • <span>Feasibility: 92%</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#f43f5e', flexWrap: 'wrap' }}>
+                          <span>Discovery Potential: 96.8% (Example output)</span> • <span>Target Venue: Nature Materials</span>
                         </div>
                       </div>
                     )}
@@ -337,8 +391,8 @@ export default function LandingPage() {
                         <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           Current parameter-efficient fine-tuning fixes rank r uniformly across layers. Adaptive singular value truncation yields 4.2x parameter reduction on 70B models.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#4ade80' }}>
-                          <span>Discovery Potential: 99.1%</span> • <span>Target Venue: ICML Oral</span> • <span>Empirical Gain: +4.2x</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#4ade80', flexWrap: 'wrap' }}>
+                          <span>Discovery Potential: 99.1% (Example output)</span> • <span>Target Venue: ICML Oral</span>
                         </div>
                       </div>
                     )}
@@ -350,8 +404,8 @@ export default function LandingPage() {
                         <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           SSMs eliminate the KV cache but struggle with in-context associative recall. A hybrid state router guarantees 10M token processing on consumer hardware.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#38bdf8' }}>
-                          <span>Discovery Potential: 97.5%</span> • <span>Target Venue: NeurIPS Spotlight</span> • <span>Memory Bound: O(1)</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#38bdf8', flexWrap: 'wrap' }}>
+                          <span>Discovery Potential: 97.5% (Example output)</span> • <span>Target Venue: NeurIPS Spotlight</span>
                         </div>
                       </div>
                     )}
@@ -363,8 +417,8 @@ export default function LandingPage() {
                         <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
                           Combining DeepSeek latent compression with AlphaFold structural predictions unlocks real-time de novo therapeutic antibody design in under 3 seconds.
                         </p>
-                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#4ade80' }}>
-                          <span>Synthesis Confidence: 99.4%</span> • <span>Commercial Valuation: $120M+</span> • <span>Patent Readiness: HIGH</span>
+                        <div style={{ marginTop: 10, display: 'flex', gap: 14, fontSize: '0.74rem', color: '#4ade80', flexWrap: 'wrap' }}>
+                          <span>Synthesis Confidence: 99.4% (Example output)</span> • <span>Illustrative Concept Evaluation</span>
                         </div>
                       </div>
                     )}
@@ -372,7 +426,7 @@ export default function LandingPage() {
                 </motion.div>
               )}
 
-              {/* TAB 2: PYTHON WASM SANDBOX */}
+              {/* TAB 2: IN-BROWSER PYTHON (NUMPY) WASM SANDBOX */}
               {activeEngineTab === 'python' && (
                 <motion.div 
                   key="python"
@@ -388,7 +442,7 @@ export default function LandingPage() {
                       <span className="terminal-dot" style={{ background: '#eab308' }} />
                       <span className="terminal-dot" style={{ background: '#22c55e' }} />
                       <span style={{ marginLeft: 10, fontSize: '0.78rem', color: '#94a3b8' }}>
-                        pyodide-wasm-sandbox • python 3.11 (zero server latency)
+                        pyodide-wasm-sandbox • python 3.11 with numpy (runs in your browser)
                       </span>
                     </div>
                     <button 
@@ -398,22 +452,27 @@ export default function LandingPage() {
                       style={{ padding: '6px 16px', fontSize: '0.78rem', borderRadius: 10 }}
                     >
                       {isRunningPython ? <RefreshCw size={13} className="animate-spin" /> : <Play size={13} />}
-                      {isRunningPython ? 'Executing in WASM...' : 'Run Simulation'}
+                      {isRunningPython ? 'Executing in Browser...' : 'Run Simulation'}
                     </button>
                   </div>
 
                   <div className="code-editor-body">
-                    <div><span className="code-keyword">import</span> torch</div>
                     <div><span className="code-keyword">import</span> numpy <span className="code-keyword">as</span> np</div>
                     <br />
-                    <div><span className="code-comment"># Empirical Validation: FlashAttention-3 vs Standard O(N²) Attention</span></div>
-                    <div><span className="code-keyword">def</span> <span className="code-fn">benchmark_flash_attention</span>(batch=1, heads=8, seq_len=4096, dim=64):</div>
-                    <div style={{ paddingLeft: 20 }}>q = torch.randn(batch, heads, seq_len, dim)</div>
-                    <div style={{ paddingLeft: 20 }}>k = torch.randn(batch, heads, seq_len, dim)</div>
-                    <div style={{ paddingLeft: 20 }}>v = torch.randn(batch, heads, seq_len, dim)</div>
-                    <div style={{ paddingLeft: 20 }}><span className="code-comment"># Tiled SRAM matrix multiplication bypasses quadratic HBM bandwidth</span></div>
-                    <div style={{ paddingLeft: 20 }}>out = torch.nn.functional.scaled_dot_product_attention(q, k, v)</div>
-                    <div style={{ paddingLeft: 20 }}><span className="code-keyword">return</span> out.shape, <span className="code-str">"Validation: 3.42x Speedup [PASS]"</span></div>
+                    <div><span className="code-comment"># Run Python (NumPy) in the browser via Pyodide WebAssembly</span></div>
+                    <div><span className="code-keyword">def</span> <span className="code-fn">scaled_dot_product_attention</span>(Q, K, V):</div>
+                    <div style={{ paddingLeft: 20 }}>d_k = Q.shape[-1]</div>
+                    <div style={{ paddingLeft: 20 }}>scores = np.matmul(Q, K.swapaxes(-2, -1)) / np.sqrt(d_k)</div>
+                    <div style={{ paddingLeft: 20 }}><span className="code-comment"># Numerically stable in-browser softmax</span></div>
+                    <div style={{ paddingLeft: 20 }}>exp_scores = np.exp(scores - np.max(scores, axis=-1, keepdims=True))</div>
+                    <div style={{ paddingLeft: 20 }}>weights = exp_scores / np.sum(exp_scores, axis=-1, keepdims=True)</div>
+                    <div style={{ paddingLeft: 20 }}><span className="code-keyword">return</span> np.matmul(weights, V)</div>
+                    <br />
+                    <div><span className="code-comment"># In-browser validation: batch=1, heads=8, seq=512, dim=64</span></div>
+                    <div>Q = np.random.randn(1, 8, 512, 64)</div>
+                    <div>K = np.random.randn(1, 8, 512, 64)</div>
+                    <div>V = np.random.randn(1, 8, 512, 64)</div>
+                    <div>out = scaled_dot_product_attention(Q, K, V)</div>
                   </div>
 
                   <div className="terminal-output-area">
@@ -695,9 +754,9 @@ export default function LandingPage() {
           FRONTIER MULTI-LLM FLEET SECTION (WITH 3D TILT CARDS)
           ===================================================================== */}
       <section id="fleet" className="section-premium" style={{ background: '#05070d' }}>
-        <h2 className="section-title">The Frontier Multi-LLM Fleet.</h2>
+        <h2 className="section-title">Configurable Frontier Models.</h2>
         <p className="section-subtitle">
-          Never be constrained by a single model's biases. RMinios routes each reasoning phase to the best foundation model on Earth.
+          Never be constrained by a single model's biases. Route each reasoning phase to modern frontier models or connect your own API keys via client-side storage.
         </p>
 
         <div className="fleet-grid">
@@ -712,18 +771,14 @@ export default function LandingPage() {
                 ACTIVE ENGINE
               </span>
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>Google Gemini 2.5 Flash</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>Google Gemini (2.5 Flash / Pro)</h3>
             <span style={{ fontSize: '0.78rem', color: '#818cf8', fontWeight: 600, marginBottom: 12 }}>1,000,000 Token Context Window</span>
-            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: '0 0 18px 0' }}>
+            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: 0 }}>
               Sub-second temporal copilot with real-time clock awareness and massive PDF corpus ingestion. Powers Sara AI and real-time literature synthesis.
             </p>
-            <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14, display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#94a3b8' }}>
-              <span>Latency: <strong>&lt; 450ms</strong></span>
-              <span>Reasoning: <strong>94.2%</strong></span>
-            </div>
           </TiltCard3D>
 
-          {/* Card 2: OpenAI GPT-4o */}
+          {/* Card 2: OpenAI */}
           <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#10b981' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -734,18 +789,14 @@ export default function LandingPage() {
                 REASONING
               </span>
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>OpenAI GPT-4o</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>OpenAI (GPT-4o / Reasoning Models)</h3>
             <span style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 600, marginBottom: 12 }}>128,000 Token Context Window</span>
-            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: '0 0 18px 0' }}>
-              Specialized in discrete mathematics, theorem verification, and PyTorch architecture synthesis. Powers Antigravity Code Studio and mathematical proofs.
+            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: 0 }}>
+              Specialized in discrete mathematics, theorem verification, and code generation. Powers Antigravity Code Studio and mathematical proofs.
             </p>
-            <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14, display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#94a3b8' }}>
-              <span>Latency: <strong>&lt; 620ms</strong></span>
-              <span>Code Gen: <strong>96.8%</strong></span>
-            </div>
           </TiltCard3D>
 
-          {/* Card 3: Anthropic Claude 3.5 */}
+          {/* Card 3: Anthropic Claude */}
           <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#f59e0b' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -756,18 +807,14 @@ export default function LandingPage() {
                 ACADEMIC PROSE
               </span>
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>Claude 3.5 Sonnet</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>Anthropic Claude (3.5 / 3.7 Sonnet)</h3>
             <span style={{ fontSize: '0.78rem', color: '#fbbf24', fontWeight: 600, marginBottom: 12 }}>200,000 Token Context Window</span>
-            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: '0 0 18px 0' }}>
+            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: 0 }}>
               Flawless graduate-level scientific literature reviews, LaTeX equations, and philosophical depth. Powers paper authoring and Area Chair meta-verdicts.
             </p>
-            <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14, display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#94a3b8' }}>
-              <span>Latency: <strong>&lt; 580ms</strong></span>
-              <span>Academic Tone: <strong>98.5%</strong></span>
-            </div>
           </TiltCard3D>
 
-          {/* Card 4: xAI Grok 2 */}
+          {/* Card 4: xAI Grok / Open Models */}
           <TiltCard3D className="fleet-card">
             <div className="fleet-card-glow" style={{ background: '#ef4444' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -778,15 +825,11 @@ export default function LandingPage() {
                 ADVERSARIAL
               </span>
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>xAI Grok 2</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 6px 0', color: '#fff' }}>xAI Grok / Open Frontier Models</h3>
             <span style={{ fontSize: '0.78rem', color: '#f87171', fontWeight: 600, marginBottom: 12 }}>128,000 Token Context Window</span>
-            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: '0 0 18px 0' }}>
+            <p style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, margin: 0 }}>
               Uncompromising adversarial stress-testing. Challenges hypothesis assumptions, spots statistical flaws, and prepares authors for hostile peer review.
             </p>
-            <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14, display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#94a3b8' }}>
-              <span>Latency: <strong>&lt; 510ms</strong></span>
-              <span>Stress-Test: <strong>97.1%</strong></span>
-            </div>
           </TiltCard3D>
         </div>
       </section>
@@ -797,7 +840,7 @@ export default function LandingPage() {
       <section id="innovations" className="section-premium" style={{ background: '#000000' }}>
         <h2 className="section-title">Everything interconnected.</h2>
         <p className="section-subtitle">
-          Ten unified autonomous systems replacing fragmented paper drafting, literature search, and computational biology stacks.
+          Ten modular systems connecting paper drafting, literature search, and in-browser computation into a unified workflow.
         </p>
 
         <div className="bento-grid">
@@ -808,14 +851,14 @@ export default function LandingPage() {
             </div>
             <h3 style={{ fontSize: '1.45rem', fontWeight: 700, marginBottom: 10, color: '#fff' }}>Scientific Integrity Shield</h3>
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 520, fontSize: '0.92rem' }}>
-              Instantly audit your research papers against 50,000+ retracted journal articles, verify DOI authenticity via Crossref, and detect hallucinated references before journal submission.
+              Audit your research papers against curated Retraction Watch sample datasets, verify DOI authenticity via Crossref, and detect unverified references before journal submission.
             </p>
             <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
               <span style={{ fontSize: '0.74rem', padding: '4px 10px', borderRadius: 8, background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)' }}>
-                ✓ Retracted DOI Detection
+                ✓ Sample Retraction Datasets
               </span>
               <span style={{ fontSize: '0.74rem', padding: '4px 10px', borderRadius: 8, background: 'rgba(99,102,241,0.1)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.25)' }}>
-                ✓ Conflict of Interest Audit
+                ✓ Crossref DOI Verification
               </span>
             </div>
           </TiltCard3D>
@@ -841,9 +884,9 @@ export default function LandingPage() {
             <div className="feature-icon-premium" style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.05))', borderColor: 'rgba(56,189,248,0.3)' }}>
               <Target size={24} style={{ color: '#38bdf8' }} />
             </div>
-            <h3 style={{ fontSize: '1.45rem', fontWeight: 700, marginBottom: 10, color: '#fff' }}>$500M+ Grant Radar</h3>
+            <h3 style={{ fontSize: '1.45rem', fontWeight: 700, marginBottom: 10, color: '#fff' }}>Grant Radar (Sample Calls)</h3>
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, fontSize: '0.92rem' }}>
-              AI cross-matches your proposal against active funding calls from NSF, NIH, DARPA, and Horizon Europe, synthesizing tailored milestone roadmaps.
+              AI cross-matches your proposal against curated funding opportunities from NSF, NIH, DARPA, and Horizon Europe sample datasets.
             </p>
           </TiltCard3D>
 
@@ -865,71 +908,87 @@ export default function LandingPage() {
             </div>
             <h3 style={{ fontSize: '1.45rem', fontWeight: 700, marginBottom: 10, color: '#fff' }}>Antigravity Code Studio</h3>
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, fontSize: '0.92rem' }}>
-              Autonomous software developer agent creating multi-file PyTorch models, data loaders, automated testing harnesses, and synthetic training loops.
+              Autonomous developer agent generating multi-file Python and NumPy models, test harnesses, and client-side validation loops.
             </p>
           </TiltCard3D>
         </div>
       </section>
 
       {/* =====================================================================
-          ARCHITECTURE PIPELINE FLOW
+          ARCHITECTURE SECTION: WHAT'S ACTUALLY BUILT
           ===================================================================== */}
       <section id="architecture" className="section-premium" style={{ background: '#070911', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <h2 className="section-title">Engineered from Silicon to Publication.</h2>
+        <h2 className="section-title">Architecture: What's Actually Built.</h2>
         <p className="section-subtitle">
-          How raw pre-prints transform into verified code, peer-reviewed science, and venture-backed startups in a continuous autonomous pipeline.
+          A transparent breakdown of the production stack and runtime components implemented and running in this repository.
         </p>
 
-        <div className="architecture-timeline">
+        <div className="architecture-timeline" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
           <div className="pipeline-step-card">
             <span className="pipeline-step-num">01</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Multimodal Ingestion</h3>
-            <p style={{ margin: 0, fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Drop PDFs, LaTeX files, or raw datasets. High-dimensional vector embeddings (gemini-embedding-001) index semantic chunks in Supabase pgvector.
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Next.js 16 & React 19</h3>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              App Router hybrid SSR/CSR architecture with Server Actions, API Route Handlers, and streaming client components.
             </p>
           </div>
 
           <div className="pipeline-step-card">
             <span className="pipeline-step-num">02</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Swarm Debate & Gap Discovery</h3>
-            <p style={{ margin: 0, fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Claude 3.5, GPT-4o, and Grok 2 debate hypotheses across 3D Citation Constellations, pinpointing unexplored scientific white spaces.
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Three.js & WebGL 3D</h3>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              Custom interactive 360° orbiting 3D hero stage and 3D force-directed citation galaxy graph with drag controls.
             </p>
           </div>
 
           <div className="pipeline-step-card">
             <span className="pipeline-step-num">03</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>In-Browser Empirical Proof</h3>
-            <p style={{ margin: 0, fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Pyodide WebAssembly executes PyTorch code directly in the client's browser, validating mathematical proofs with zero server compute latency.
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Pyodide WebAssembly</h3>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              In-browser Python 3.11 runtime with NumPy. Runs matrix computations locally inside the browser with zero server round-trips.
             </p>
           </div>
 
           <div className="pipeline-step-card">
             <span className="pipeline-step-num">04</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Peer Review & Venture Spinout</h3>
-            <p style={{ margin: 0, fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              3 adversarial reviewers stress-test the paper, generating camera-ready LaTeX, while Venture Studio outputs 10-slide VC pitch decks.
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Supabase & pgvector</h3>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              PostgreSQL database with Row-Level Security (RLS) data isolation, user authentication sessions, and pgvector embeddings.
+            </p>
+          </div>
+
+          <div className="pipeline-step-card">
+            <span className="pipeline-step-num">05</span>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Google Gemini & Sara AI</h3>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              Frontier model routing with client real-time temporal anchor, clock synchronization, and paper summarization.
+            </p>
+          </div>
+
+          <div className="pipeline-step-card">
+            <span className="pipeline-step-num">06</span>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 8px 0', color: '#fff' }}>Client-Side BYOK Storage</h3>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              Bring-Your-Own-Key model routing keeping user OpenAI, Anthropic, and Grok keys encrypted in localStorage.
             </p>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          COMPETITIVE COMPARISON MATRIX
+          COMPETITIVE COMPARISON: WHAT THIS PROJECT EXPLORES
           ===================================================================== */}
-      <section className="section-premium" style={{ background: '#000000' }}>
-        <h2 className="section-title">Why RMinios Replaces Legacy Tools.</h2>
+      <section id="exploration" className="section-premium" style={{ background: '#000000' }}>
+        <h2 className="section-title">What this project explores.</h2>
         <p className="section-subtitle">
-          Stop juggling 6 disconnected browser tabs for literature search, coding, paper formatting, and music.
+          A conceptual exploration of how unifying in-browser execution, 3D citation graphs, and multi-agent debate compares against traditional separated research tools.
         </p>
 
         <div className="comparison-table-wrapper">
           <table className="comparison-table">
             <thead>
               <tr>
-                <th style={{ width: '32%' }}>Capabilities</th>
-                <th className="rminios-col-highlight" style={{ width: '22%' }}>⚡ RMinios OS 2.5</th>
+                <th style={{ width: '32%' }}>Exploration Area</th>
+                <th className="rminios-col-highlight" style={{ width: '22%' }}>⚡ RMinios OS (Exploration)</th>
                 <th style={{ width: '15%' }}>Overleaf</th>
                 <th style={{ width: '15%' }}>ChatGPT Plus</th>
                 <th style={{ width: '16%' }}>Semantic Scholar</th>
@@ -937,8 +996,8 @@ export default function LandingPage() {
             </thead>
             <tbody>
               <tr>
-                <td><strong>Frontier Multi-LLM Swarm Debate</strong></td>
-                <td className="rminios-col-highlight"><Check size={18} style={{ color: '#22c55e' }} /> 4 Models Synced</td>
+                <td><strong>Multi-Agent Swarm Debate</strong></td>
+                <td className="rminios-col-highlight"><Check size={18} style={{ color: '#22c55e' }} /> 4 Personas Synced</td>
                 <td><X size={18} style={{ color: '#ef4444' }} /></td>
                 <td><X size={18} style={{ color: '#ef4444' }} /> Single Model</td>
                 <td><X size={18} style={{ color: '#ef4444' }} /></td>
@@ -951,8 +1010,8 @@ export default function LandingPage() {
                 <td>2D Static Graph</td>
               </tr>
               <tr>
-                <td><strong>Client-Side Python WASM Sandbox</strong></td>
-                <td className="rminios-col-highlight"><Check size={18} style={{ color: '#22c55e' }} /> Pyodide 3.11</td>
+                <td><strong>In-Browser Python (NumPy) WASM</strong></td>
+                <td className="rminios-col-highlight"><Check size={18} style={{ color: '#22c55e' }} /> Pyodide (Runs in browser)</td>
                 <td><X size={18} style={{ color: '#ef4444' }} /></td>
                 <td>Cloud Python (Delayed)</td>
                 <td><X size={18} style={{ color: '#ef4444' }} /></td>
@@ -992,6 +1051,19 @@ export default function LandingPage() {
           Start for free with guest access and free accounts. Upgrade when your laboratory demands frontier swarm computing.
         </p>
 
+        {/* Portfolio Project Disclaimer Banner */}
+        <div className="pricing-disclaimer-banner">
+          <span style={{ fontSize: '1.4rem' }}>💡</span>
+          <div>
+            <strong style={{ fontSize: '0.96rem', color: '#fef08a' }}>
+              Portfolio project: no payments, plans are illustrative.
+            </strong>
+            <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem', lineHeight: 1.5 }}>
+              RMinios is an open-source engineering exploration designed by Jonnadula Mohit Sai. All core features are available for testing without payment.
+            </p>
+          </div>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: 24, maxWidth: 1080, margin: '0 auto' }}>
           {/* Free Tier */}
           <div className="glass-panel" style={{ padding: 36, display: 'flex', flexDirection: 'column' }}>
@@ -1012,45 +1084,45 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Fellow Tier (Most Popular) */}
+          {/* Fellow Tier (Illustrative Tier) */}
           <div className="glass-panel" style={{ padding: 36, display: 'flex', flexDirection: 'column', border: '1px solid rgba(99,102,241,0.5)', background: 'rgba(99,102,241,0.06)', position: 'relative' }}>
             <div style={{ position: 'absolute', top: 0, right: 0, padding: '5px 16px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', fontSize: '0.72rem', fontWeight: 700, borderBottomLeftRadius: 14, color: '#fff' }}>
-              MOST POPULAR
+              ILLUSTRATIVE TIER
             </div>
             
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', margin: '0 0 6px 0' }}>Fellow & Lab Scientist</h3>
-            <span style={{ fontSize: '0.8rem', color: '#a5b4fc', marginBottom: 20 }}>For PhD candidates, postdocs, and research labs</span>
+            <span style={{ fontSize: '0.8rem', color: '#a5b4fc', marginBottom: 20 }}>Illustrative concept for lab research groups</span>
             <div style={{ fontSize: '3rem', fontWeight: 800, marginBottom: 24, color: '#fff' }}>$29<span style={{ fontSize: '1rem', color: '#888', fontWeight: 400 }}> / month</span></div>
             
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: 14, color: '#e2e8f0', fontSize: '0.86rem' }}>
               <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> Unlimited Research Papers & Workspaces</li>
-              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> 4-Agent Swarm Arena (GPT-4o, Claude, Grok, Gemini)</li>
+              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> 4-Agent Swarm Arena (Configurable Multi-LLM Fleet)</li>
               <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> Adversarial NeurIPS Peer Review & Rebuttal Generator</li>
               <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> Dual-Host NotebookLM Audio Studio & Wave Synthesis</li>
               <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> Academic-to-Startup Venture Studio & Pitch Decks</li>
-              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> Active $500M+ NSF / NIH Grant Matching Radar</li>
+              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#38bdf8' }} /> Active Grant & Funding Radar (Curated Sample Calls)</li>
             </ul>
             
             <Link href="/signup" className="premium-btn-primary" style={{ marginTop: 'auto', width: '100%' }}>
-              Upgrade to Fellow Plan
+              Explore Fellow Features
             </Link>
           </div>
 
           {/* Enterprise / Institution */}
           <div className="glass-panel" style={{ padding: 36, display: 'flex', flexDirection: 'column' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#fff', margin: '0 0 6px 0' }}>University & Enterprise</h3>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 20 }}>For universities, biotech firms, and enterprise R&D</span>
+            <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 20 }}>Illustrative tier for institutions and labs</span>
             <div style={{ fontSize: '3rem', fontWeight: 800, marginBottom: 24 }}>$99<span style={{ fontSize: '1rem', color: '#888', fontWeight: 400 }}> / month</span></div>
             
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: 14, color: '#cbd5e1', fontSize: '0.86rem' }}>
               <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#22c55e' }} /> Unlimited Team Members & Multi-User Collaboration</li>
-              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#22c55e' }} /> Dedicated Private Cloud VPC or On-Premise Host</li>
+              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#22c55e' }} /> Self-Hosted Deployment Guides & Docker Configuration</li>
               <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#22c55e' }} /> Bring-Your-Own-Key (BYOK) Custom Model Routing</li>
-              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#22c55e' }} /> Priority 24/7 Dedicated Research Engineer SLA</li>
+              <li style={{ display: 'flex', gap: 10 }}><CheckCircle2 size={18} style={{ color: '#22c55e' }} /> Open-Source GitHub Issue Tracking & Community Support</li>
             </ul>
             
             <Link href="/support" className="premium-btn" style={{ marginTop: 'auto', width: '100%' }}>
-              Contact Lab Solutions
+              Submit Lab Inquiry
             </Link>
           </div>
         </div>
@@ -1068,8 +1140,8 @@ export default function LandingPage() {
         <div className="faq-container">
           {[
             {
-              q: "How does the in-browser Python sandbox run with zero server latency?",
-              a: "RMinios uses Pyodide, an Emscripten-compiled WebAssembly port of CPython 3.11 with NumPy and PyTorch micro-kernels. Execution runs 100% locally inside your web browser's isolated WASM sandbox, guaranteeing instantaneous runtimes, zero cloud queuing, and absolute data privacy."
+              q: "How does the in-browser Python sandbox run in your browser?",
+              a: "RMinios uses Pyodide, an Emscripten-compiled WebAssembly port of CPython 3.11 with NumPy. Execution runs 100% locally inside your web browser's isolated WASM sandbox, ensuring instant runtimes, zero cloud queuing, and absolute data privacy."
             },
             {
               q: "Can I bring my own API keys for OpenAI, Anthropic, or xAI Grok?",
@@ -1131,7 +1203,7 @@ export default function LandingPage() {
             </p>
             <div className="status-pill-live" style={{ width: 'fit-content', marginTop: 6 }}>
               <span className="status-dot-pulse" />
-              <span>All 52 Platform Engines Operational</span>
+              <span>All 10 Research Modules Operational</span>
             </div>
           </div>
 
@@ -1153,24 +1225,33 @@ export default function LandingPage() {
             <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff', marginBottom: 14 }}>Intelligence & Integrity</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9, fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)' }}>
               <li><Link href="/dashboard/integrity" style={{ color: 'inherit', textDecoration: 'none' }}>Scientific Integrity Shield</Link></li>
-              <li><Link href="/dashboard/grants" style={{ color: 'inherit', textDecoration: 'none' }}>$500M+ Grant Radar</Link></li>
+              <li><Link href="/dashboard/grants" style={{ color: 'inherit', textDecoration: 'none' }}>Grant & Funding Radar</Link></li>
               <li><Link href="/dashboard/radar" style={{ color: 'inherit', textDecoration: 'none' }}>Global Literature Radar</Link></li>
               <li><Link href="/dashboard/codestudio" style={{ color: 'inherit', textDecoration: 'none' }}>Antigravity Code Studio</Link></li>
               <li><Link href="/support" style={{ color: 'inherit', textDecoration: 'none' }}>Support & Documentation</Link></li>
             </ul>
           </div>
 
-          {/* Owner & Support Col */}
+          {/* Creator & Contact Col */}
           <div>
-            <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff', marginBottom: 14 }}>Owner & Support</h4>
+            <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff', marginBottom: 14 }}>Creator & Contact</h4>
             <div style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-              <div>Creator: <strong>{siteSettings.owner_name}</strong></div>
-              <div>Support: <a href={`mailto:${siteSettings.support_email}`} style={{ color: '#38bdf8', textDecoration: 'none' }}>{siteSettings.support_email}</a></div>
-              <div>Direct: <strong>{siteSettings.support_phone}</strong></div>
-              <div style={{ marginTop: 10 }}>
-                <Link href="/support" className="premium-btn" style={{ padding: '6px 14px', fontSize: '0.76rem' }}>
-                  Open Help Ticket →
+              <div>Creator: <strong>Jonnadula Mohit Sai</strong></div>
+              <div style={{ margin: '6px 0 12px 0', color: 'rgba(255,255,255,0.6)' }}>
+                Have inquiries, feedback, or collaboration ideas? Reach out directly via our contact form.
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Link href="/support" className="premium-btn" style={{ padding: '7px 14px', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: 6, width: 'fit-content' }}>
+                  <MessageSquare size={13} /> Open Contact Form
                 </Link>
+                <a 
+                  href="https://github.com/Mohitsai3579/rminios" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{ color: '#38bdf8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', marginTop: 4 }}
+                >
+                  <GithubIcon size={13} /> GitHub Repository
+                </a>
               </div>
             </div>
           </div>

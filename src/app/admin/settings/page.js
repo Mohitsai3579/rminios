@@ -203,15 +203,11 @@ export default function AdminSettingsPage() {
           </h4>
           <div className="input-group" style={{ marginBottom: 16 }}>
             <label>Owner / Creator Name</label>
-            <input type="text" className="input" value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g. Mohit Jonnadula" />
+            <input type="text" className="input" value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g. Jonnadula Mohit Sai" />
           </div>
           <div className="input-group" style={{ marginBottom: 16 }}>
-            <label>Support Email Address</label>
-            <input type="email" className="input" value={supportEmail} onChange={e => setSupportEmail(e.target.value)} placeholder="e.g. mohitjonnadula16@gmail.com" />
-          </div>
-          <div className="input-group">
-            <label>Support Phone Number</label>
-            <input type="text" className="input" value={supportPhone} onChange={e => setSupportPhone(e.target.value)} placeholder="e.g. 9494366318" />
+            <label>Support Contact Endpoint / Email</label>
+            <input type="email" className="input" value={supportEmail} onChange={e => setSupportEmail(e.target.value)} placeholder="e.g. support@rminios.dev" />
           </div>
         </div>
 

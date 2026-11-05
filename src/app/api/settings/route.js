@@ -17,10 +17,9 @@ export async function GET(request) {
     if (!data) {
       // Fallback defaults if table is empty or missing
       return NextResponse.json({
-        owner_name: 'Mohit Jonnadula',
-        support_email: 'mohitjonnadula16@gmail.com',
-        support_phone: '9494366318',
-        gemini_model: 'gemini-3.5-flash',
+        owner_name: 'Jonnadula Mohit Sai',
+        support_email: 'support@rminios.dev',
+        gemini_model: 'gemini-2.5-flash',
         fleet: fleetData?.value || null
       });
     }
